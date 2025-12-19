@@ -1,0 +1,4 @@
+VERSION: BASIC (Non-AI)
+CREATED: December 2025
+TEAM: Sayyad, Hasnain, Hassan, Feroz
+CONTACT: www.ferozkhan@outlook.com
