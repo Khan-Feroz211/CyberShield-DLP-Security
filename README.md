@@ -73,3 +73,31 @@ Email: www.ferozkhan@outlook.com
 
 ---
 **⭐ If you find this project useful, please star the repository!**
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Python 3.8 or higher
+- pip package manager
+- Web browser
+
+### Installation Steps
+1. Clone the repository
+2. Create virtual environment
+3. Install dependencies
+4. Run the application
+5. Access at http://localhost:5001
+
+### Default Users
+| Role | Username | Password |
+|------|----------|----------|
+| Admin | admin | admin123 |
+| Manager | manager | manager123 |
+| User | user | user123 |
+
+## 📁 Project Structure
+- `app.py` - Main application file
+- `templates/` - HTML templates
+- `static/` - CSS, JavaScript, images
+- `data/` - JSON data files
+- `requirements.txt` - Python dependencies
