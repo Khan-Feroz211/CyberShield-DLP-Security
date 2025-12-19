@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+
+{% block title %}Threat Management - DLP Security System{% endblock %}
+{% block page_title %}Threat Management{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <!-- Threat Summary -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="bi bi-shield-exclamation"></i> Threat Summary
+                <div class="float-end">
+                    <span class="badge bg-danger me-2">Critical: {{ threats|selectattr('severity', 'equalto', 'critical')|list|length }}</span>
+                    <span class="badge bg-warning me-2">High: {{ threats|selectattr('severity', 'equalto', 'high')|list|length }}</span>
+                    <span class="badge bg-info">Medium: {{ threats|selectattr('severity', 'equalto', 'medium')|list|length }}</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-3">
+                        <div class="display-6 text-danger">{{ threats|length }}</div>
+                        <small>Total Threats</small>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="display-6 text-warning">{{ threats|selectattr('status', 'equalto', 'investigating')|list|length }}</div>
+                        <small>Investigating</small>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="display-6 text-success">{{ threats|selectattr('status', 'equalto', 'resolved')|list|length }}</div>
+                        <small>Resolved</small>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="display-6 text-info">{{ threats|selectattr('status', 'equalto', 'quarantined')|list|length }}</div>
+                        <small>Quarantined</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Threat Table -->
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-list-ul"></i> Detected Threats
+                <button class="btn btn-sm btn-outline-danger float-end" id="exportThreats">
+                    <i class="bi bi-download"></i> Export All
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Threat ID</th>
+                                <th>Type</th>
+                                <th>File</th>
+                                <th>Severity</th>
+                                <th>Detected</th>
+                                <th>Status</th>
+                                <th>User</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for threat in threats %}
+                            <tr>
+                                <td><strong>{{ threat.id }}</strong></td>
+                                <td>
+                                    {% if threat.type == 'malware' %}
+                                    <span class="badge bg-danger">Malware</span>
+                                    {% elif threat.type == 'sensitive_data' %}
+                                    <span class="badge bg-warning">Sensitive Data</span>
+                                    {% elif threat.type == 'policy_violation' %}
+                                    <span class="badge bg-info">Policy Violation</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">{{ threat.type }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div>{{ threat.file_name }}</div>
+                                    <small class="text-muted">{{ threat.file_path }}</small>
+                                </td>
+                                <td>
+                                    {% if threat.severity == 'critical' %}
+                                    <span class="badge bg-danger">Critical</span>
+                                    {% elif threat.severity == 'high' %}
+                                    <span class="badge bg-warning">High</span>
+                                    {% elif threat.severity == 'medium' %}
+                                    <span class="badge bg-info">Medium</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">{{ threat.severity }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ threat.date_detected }}</td>
+                                <td>
+                                    {% if threat.status == 'quarantined' %}
+                                    <span class="badge bg-success">Quarantined</span>
+                                    {% elif threat.status == 'investigating' %}
+                                    <span class="badge bg-warning">Investigating</span>
+                                    {% elif threat.status == 'resolved' %}
+                                    <span class="badge bg-info">Resolved</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">{{ threat.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div>{{ threat.user }}</div>
+                                    <small class="text-muted">{{ threat.department }}</small>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary view-threat" data-id="{{ threat.id }}">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-success resolve-threat" data-id="{{ threat.id }}">
+                                        <i class="bi bi-check"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger delete-threat" data-id="{{ threat.id }}">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Threat Details Modal -->
+<div class="modal fade" id="threatModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Threat Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="threatDetails">
+                    <!-- Details will be loaded here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="takeAction">Take Action</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // View threat details
+    document.querySelectorAll('.view-threat').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const threatId = this.dataset.id;
+            // Simulate loading threat details
+            const threatDetails = `
+                <h6>Threat ID: ${threatId}</h6>
+                <p><strong>Type:</strong> Malware Detection</p>
+                <p><strong>File:</strong> suspicious_file.exe</p>
+                <p><strong>Path:</strong> /downloads/temp</p>
+                <p><strong>Severity:</strong> Critical</p>
+                <p><strong>Detection Rule:</strong> Malware Signature DB0123</p>
+                <p><strong>Confidence:</strong> 99%</p>
+                <p><strong>Action Taken:</strong> File quarantined, system scanned</p>
+                <p><strong>Recommendation:</strong> Review system logs, update antivirus</p>
+            `;
+            document.getElementById('threatDetails').innerHTML = threatDetails;
+            new bootstrap.Modal(document.getElementById('threatModal')).show();
+        });
+    });
+    
+    // Resolve threat
+    document.querySelectorAll('.resolve-threat').forEach(btn => {
+        btn.addEventListener('click', function() {
+            if (confirm('Mark this threat as resolved?')) {
+                const row = this.closest('tr');
+                const statusBadge = row.querySelector('td:nth-child(6) .badge');
+                statusBadge.className = 'badge bg-info';
+                statusBadge.textContent = 'Resolved';
+                alert('Threat marked as resolved!');
+            }
+        });
+    });
+    
+    // Export threats
+    document.getElementById('exportThreats').addEventListener('click', function() {
+        alert('Exporting threats data... This would download a CSV file.');
+        // In a real system, this would trigger a download
+        window.location.href = '/api/report/generate?type=threats&format=csv';
+    });
+</script>
+{% endblock %}

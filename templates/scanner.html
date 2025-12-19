@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+{% block title %}Content Scanner - DLP Security System{% endblock %}
+{% block page_title %}Content Scanner{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-search"></i> Scan Configuration
+            </div>
+            <div class="card-body">
+                <form id="scanForm">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Scan Type</label>
+                            <select class="form-select" id="scanType">
+                                <option value="quick">Quick Scan (Fast)</option>
+                                <option value="deep">Deep Scan (Thorough)</option>
+                                <option value="targeted">Targeted Scan</option>
+                                <option value="scheduled">Scheduled Scan</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Target</label>
+                            <select class="form-select" id="scanTarget">
+                                <option value="all">All Files</option>
+                                <option value="documents">Documents Only</option>
+                                <option value="database">Database Files</option>
+                                <option value="custom">Custom Path</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Scan Path (Optional)</label>
+                        <input type="text" class="form-control" placeholder="/path/to/scan" id="customPath">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="notifyOnComplete">
+                            <label class="form-check-label" for="notifyOnComplete">
+                                Notify when scan completes
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="autoQuarantine">
+                            <label class="form-check-label" for="autoQuarantine">
+                                Auto-quarantine threats
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button type="button" class="btn btn-outline-secondary" id="testScan">
+                            <i class="bi bi-play-circle"></i> Test Scan
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-search"></i> Start Scan
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Scan Results -->
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-list-check"></i> Recent Scan Results
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Scan Type</th>
+                                <th>Files Scanned</th>
+                                <th>Threats Found</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>14:30</td>
+                                <td>Full System Scan</td>
+                                <td>1,245</td>
+                                <td>3</td>
+                                <td><span class="badge bg-success">Completed</span></td>
+                            </tr>
+                            <tr>
+                                <td>12:15</td>
+                                <td>Targeted Scan</td>
+                                <td>156</td>
+                                <td>1</td>
+                                <td><span class="badge bg-success">Completed</span></td>
+                            </tr>
+                            <tr>
+                                <td>10:45</td>
+                                <td>Quick Scan</td>
+                                <td>589</td>
+                                <td>0</td>
+                                <td><span class="badge bg-success">Completed</span></td>
+                            </tr>
+                            <tr>
+                                <td>Yesterday</td>
+                                <td>Deep Scan</td>
+                                <td>3,456</td>
+                                <td>12</td>
+                                <td><span class="badge bg-success">Completed</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- Scan Statistics -->
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-bar-chart"></i> Scan Statistics
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <h1 class="display-4">1,245</h1>
+                    <p class="text-muted">Files Scanned Today</p>
+                </div>
+                
+                <div class="mb-3">
+                    <strong>Threats Detected</strong>
+                    <div class="float-end">4</div>
+                </div>
+                <div class="progress mb-3" style="height: 10px;">
+                    <div class="progress-bar bg-danger" style="width: 2%"></div>
+                </div>
+                
+                <div class="mb-3">
+                    <strong>Scan Success Rate</strong>
+                    <div class="float-end">98.5%</div>
+                </div>
+                <div class="progress mb-3" style="height: 10px;">
+                    <div class="progress-bar bg-success" style="width: 98.5%"></div>
+                </div>
+                
+                <div class="mb-3">
+                    <strong>Average Scan Time</strong>
+                    <div class="float-end">2m 15s</div>
+                </div>
+                <div class="progress mb-3" style="height: 10px;">
+                    <div class="progress-bar bg-info" style="width: 75%"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-lightning"></i> Quick Actions
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-primary" id="scheduleScan">
+                        <i class="bi bi-calendar-event"></i> Schedule Scan
+                    </button>
+                    <button class="btn btn-outline-secondary" id="viewScanHistory">
+                        <i class="bi bi-clock-history"></i> View History
+                    </button>
+                    <button class="btn btn-outline-danger" id="quarantineView">
+                        <i class="bi bi-shield-exclamation"></i> View Quarantine
+                    </button>
+                    <a href="/docs/scanner" class="btn btn-outline-info">
+                        <i class="bi bi-question-circle"></i> Help & Documentation
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    document.getElementById('scanForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        alert('Scan started successfully! Results will appear shortly.');
+        // Add actual scan logic here
+    });
+    
+    document.getElementById('testScan').addEventListener('click', function() {
+        alert('Test scan initiated. This will scan a small sample of files.');
+    });
+    
+    document.getElementById('scheduleScan').addEventListener('click', function() {
+        alert('Schedule scan feature - to be implemented');
+    });
+    
+    document.getElementById('viewScanHistory').addEventListener('click', function() {
+        window.location.href = '/reports?type=scans';
+    });
+    
+    document.getElementById('quarantineView').addEventListener('click', function() {
+        alert('Quarantine view - to be implemented');
+    });
+</script>
+{% endblock %}
+{% endblock %}

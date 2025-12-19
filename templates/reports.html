@@ -1,0 +1,649 @@
+{% extends "base.html" %}
+
+{% block title %}Reports - DLP Security System{% endblock %}
+{% block page_title %}Reports & Analytics{% endblock %}
+
+{% block extra_css %}
+<style>
+    .report-type-card {
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        text-align: center;
+        transition: all 0.3s;
+        cursor: pointer;
+        height: 100%;
+    }
+    .report-type-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        border-color: #3498db;
+    }
+    .report-icon {
+        font-size: 2.5em;
+        margin-bottom: 15px;
+        color: #3498db;
+    }
+    .download-btn {
+        margin-top: 15px;
+    }
+    .format-badge {
+        font-size: 0.8em;
+        margin: 2px;
+    }
+    .report-status {
+        padding: 10px;
+        border-radius: 5px;
+        margin: 10px 0;
+        display: none;
+    }
+    .report-status.success {
+        background-color: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+    }
+    .report-status.error {
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <!-- Report Status Messages -->
+        <div id="reportStatus" class="report-status"></div>
+        
+        <!-- Quick Report Generation -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="bi bi-file-text"></i> Quick Report Generator
+            </div>
+            <div class="card-body">
+                <form id="reportForm">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Report Type</label>
+                            <select class="form-select" id="reportType" required>
+                                <option value="">Select Report Type</option>
+                                <option value="daily">Daily Summary Report</option>
+                                <option value="weekly">Weekly Analysis Report</option>
+                                <option value="monthly">Monthly Compliance Report</option>
+                                <option value="security">Security Audit Report</option>
+                                <option value="threats">Threat Analysis Report</option>
+                                <option value="compliance">Compliance Report</option>
+                                <option value="scan">Scan Activity Report</option>
+                                <option value="user">User Activity Report</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Date Range</label>
+                            <select class="form-select" id="dateRange">
+                                <option value="today">Today</option>
+                                <option value="yesterday">Yesterday</option>
+                                <option value="week">Last 7 Days</option>
+                                <option value="month">Last 30 Days</option>
+                                <option value="quarter">Last Quarter</option>
+                                <option value="year">Last Year</option>
+                                <option value="custom">Custom Range</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3" id="customDateRange" style="display: none;">
+                        <div class="col-md-6">
+                            <label class="form-label">From Date</label>
+                            <input type="date" class="form-control" id="fromDate">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">To Date</label>
+                            <input type="date" class="form-control" id="toDate">
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Output Format</label>
+                            <div class="d-flex flex-wrap">
+                                <div class="form-check me-3">
+                                    <input class="form-check-input" type="radio" name="format" id="formatPDF" value="pdf" checked>
+                                    <label class="form-check-label" for="formatPDF">
+                                        <span class="badge bg-danger format-badge">PDF</span> Document
+                                    </label>
+                                </div>
+                                <div class="form-check me-3">
+                                    <input class="form-check-input" type="radio" name="format" id="formatCSV" value="csv">
+                                    <label class="form-check-label" for="formatCSV">
+                                        <span class="badge bg-success format-badge">CSV</span> Spreadsheet
+                                    </label>
+                                </div>
+                                <div class="form-check me-3">
+                                    <input class="form-check-input" type="radio" name="format" id="formatJSON" value="json">
+                                    <label class="form-check-label" for="formatJSON">
+                                        <span class="badge bg-warning format-badge">JSON</span> Data
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="format" id="formatTXT" value="txt">
+                                    <label class="form-check-label" for="formatTXT">
+                                        <span class="badge bg-info format-badge">TXT</span> Text
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label">Include Sections</label>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="includeExecutive" checked>
+                                        <label class="form-check-label" for="includeExecutive">
+                                            Executive Summary
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="includeScans" checked>
+                                        <label class="form-check-label" for="includeScans">
+                                            Scan Results
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="includeThreats" checked>
+                                        <label class="form-check-label" for="includeThreats">
+                                            Threat Analysis
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="includeRecommendations" checked>
+                                        <label class="form-check-label" for="includeRecommendations">
+                                            Recommendations
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button type="button" class="btn btn-outline-secondary" id="previewReportBtn">
+                            <i class="bi bi-eye"></i> Preview Report
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="generateReportBtn">
+                            <i class="bi bi-download"></i> Generate & Download Report
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Quick Report Templates -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="bi bi-lightning"></i> Quick Report Templates
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="report-type-card" data-report-type="daily" data-format="pdf">
+                            <div class="report-icon">📊</div>
+                            <h5>Daily Summary</h5>
+                            <p class="text-muted">Overview of today's security activities</p>
+                            <div class="download-btn">
+                                <button class="btn btn-sm btn-outline-primary download-quick" data-type="daily" data-format="pdf">
+                                    PDF
+                                </button>
+                                <button class="btn btn-sm btn-outline-success download-quick" data-type="daily" data-format="csv">
+                                    CSV
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="report-type-card" data-report-type="security" data-format="pdf">
+                            <div class="report-icon">🔒</div>
+                            <h5>Security Audit</h5>
+                            <p class="text-muted">Comprehensive security assessment</p>
+                            <div class="download-btn">
+                                <button class="btn btn-sm btn-outline-primary download-quick" data-type="security" data-format="pdf">
+                                    PDF
+                                </button>
+                                <button class="btn btn-sm btn-outline-success download-quick" data-type="security" data-format="csv">
+                                    CSV
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="report-type-card" data-report-type="threats" data-format="csv">
+                            <div class="report-icon">🚨</div>
+                            <h5>Threat Analysis</h5>
+                            <p class="text-muted">Detailed threat detection report</p>
+                            <div class="download-btn">
+                                <button class="btn btn-sm btn-outline-primary download-quick" data-type="threats" data-format="pdf">
+                                    PDF
+                                </button>
+                                <button class="btn btn-sm btn-outline-success download-quick" data-type="threats" data-format="csv">
+                                    CSV
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Reports -->
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-clock-history"></i> Recently Generated Reports
+                <button class="btn btn-sm btn-outline-secondary float-end" id="refreshReports">
+                    <i class="bi bi-arrow-clockwise"></i> Refresh
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Report Name</th>
+                                <th>Type</th>
+                                <th>Format</th>
+                                <th>Generated</th>
+                                <th>Size</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentReports">
+                            <tr>
+                                <td colspan="6" class="text-center text-muted">
+                                    <i class="bi bi-info-circle"></i> No reports generated yet. Generate your first report!
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="text-center mt-3">
+                    <button class="btn btn-outline-primary" id="viewAllReports">
+                        <i class="bi bi-folder"></i> View Report Archive
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Report Preview Modal -->
+<div class="modal fade" id="previewModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Report Preview</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="previewContent">
+                    <p class="text-muted">Loading preview...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="downloadFromPreview">
+                    <i class="bi bi-download"></i> Download Report
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // DOM Elements
+    const reportForm = document.getElementById('reportForm');
+    const dateRange = document.getElementById('dateRange');
+    const customDateRange = document.getElementById('customDateRange');
+    const generateReportBtn = document.getElementById('generateReportBtn');
+    const previewReportBtn = document.getElementById('previewReportBtn');
+    const reportStatus = document.getElementById('reportStatus');
+    const recentReports = document.getElementById('recentReports');
+    
+    // Show/hide custom date range
+    dateRange.addEventListener('change', function() {
+        if (this.value === 'custom') {
+            customDateRange.style.display = 'flex';
+        } else {
+            customDateRange.style.display = 'none';
+        }
+    });
+    
+    // Show status message
+    function showStatus(message, type = 'success') {
+        reportStatus.textContent = message;
+        reportStatus.className = `report-status ${type}`;
+        reportStatus.style.display = 'block';
+        
+        setTimeout(() => {
+            reportStatus.style.display = 'none';
+        }, 5000);
+    }
+    
+    // Generate report function
+    function generateReport(reportType, format, showPreview = false) {
+        const originalText = generateReportBtn.innerHTML;
+        
+        if (!showPreview) {
+            generateReportBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Generating...';
+            generateReportBtn.disabled = true;
+        }
+        
+        // Prepare request data
+        const requestData = {
+            type: reportType,
+            format: format
+        };
+        
+        // Add date range if custom
+        if (dateRange.value === 'custom') {
+            const fromDate = document.getElementById('fromDate').value;
+            const toDate = document.getElementById('toDate').value;
+            if (fromDate && toDate) {
+                requestData.date_range = { from: fromDate, to: toDate };
+            }
+        }
+        
+        // Make API request
+        fetch('/api/report/generate', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(requestData)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            if (showPreview) {
+                // For preview, we'll just show a sample
+                showPreviewContent(reportType, format);
+                return;
+            }
+            
+            // For download, get the blob
+            return response.blob();
+        })
+        .then(blob => {
+            if (showPreview) return;
+            
+            if (!blob) {
+                throw new Error('No data received');
+            }
+            
+            // Create download link
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            
+            // Set filename
+            const timestamp = new Date().toISOString().slice(0, 10);
+            const extension = format === 'pdf' ? 'pdf' : format === 'csv' ? 'csv' : format === 'json' ? 'json' : 'txt';
+            a.download = `DLP_Report_${reportType}_${timestamp}.${extension}`;
+            
+            // Trigger download
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+            
+            // Show success message
+            showStatus(`✅ Report "${reportType}" downloaded successfully as ${format.toUpperCase()}!`);
+            
+            // Add to recent reports table
+            addToRecentReports(reportType, format);
+            
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showStatus(`❌ Error generating report: ${error.message}`, 'error');
+        })
+        .finally(() => {
+            if (!showPreview) {
+                generateReportBtn.innerHTML = originalText;
+                generateReportBtn.disabled = false;
+            }
+        });
+    }
+    
+    // Show preview content
+    function showPreviewContent(reportType, format) {
+        const previewContent = document.getElementById('previewContent');
+        const previewData = {
+            daily: {
+                title: "Daily Security Summary Report",
+                sections: [
+                    "Executive Summary: Overview of today's security activities",
+                    "Scan Activities: List of all scans performed",
+                    "Threat Detection: Threats identified and actions taken",
+                    "System Metrics: Performance and health statistics",
+                    "Recommendations: Security improvement suggestions"
+                ]
+            },
+            security: {
+                title: "Security Audit Report",
+                sections: [
+                    "Audit Scope and Objectives",
+                    "Security Control Assessment",
+                    "Vulnerability Analysis",
+                    "Compliance Status",
+                    "Risk Assessment",
+                    "Remediation Recommendations"
+                ]
+            },
+            threats: {
+                title: "Threat Analysis Report",
+                sections: [
+                    "Threat Detection Summary",
+                    "Detailed Threat Analysis",
+                    "Impact Assessment",
+                    "Response Actions Taken",
+                    "Prevention Recommendations"
+                ]
+            }
+        };
+        
+        const data = previewData[reportType] || previewData.daily;
+        
+        let html = `<h4>${data.title}</h4>`;
+        html += `<p><strong>Format:</strong> ${format.toUpperCase()}</p>`;
+        html += `<p><strong>Generated:</strong> ${new Date().toLocaleString()}</p>`;
+        html += `<hr>`;
+        html += `<h5>Report Contents:</h5>`;
+        html += `<ul>`;
+        data.sections.forEach(section => {
+            html += `<li>${section}</li>`;
+        });
+        html += `</ul>`;
+        html += `<div class="alert alert-info">`;
+        html += `<i class="bi bi-info-circle"></i> This is a preview. The actual report will contain detailed data.`;
+        html += `</div>`;
+        
+        previewContent.innerHTML = html;
+        
+        // Store the current report type and format for download
+        previewModal.dataset.reportType = reportType;
+        previewModal.dataset.format = format;
+        
+        // Show modal
+        new bootstrap.Modal(document.getElementById('previewModal')).show();
+    }
+    
+    // Add to recent reports table
+    function addToRecentReports(reportType, format) {
+        // Convert report type to display name
+        const reportNames = {
+            daily: "Daily Summary",
+            weekly: "Weekly Analysis",
+            monthly: "Monthly Compliance",
+            security: "Security Audit",
+            threats: "Threat Analysis",
+            compliance: "Compliance Report",
+            scan: "Scan Activity",
+            user: "User Activity"
+        };
+        
+        const displayName = reportNames[reportType] || reportType;
+        const formatBadge = format === 'pdf' ? 'badge bg-danger' : 
+                          format === 'csv' ? 'badge bg-success' : 
+                          format === 'json' ? 'badge bg-warning' : 'badge bg-info';
+        const formatText = format.toUpperCase();
+        
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        const dateStr = now.toLocaleDateString();
+        
+        // Remove the "no reports" message if present
+        if (recentReports.querySelector('.text-muted')) {
+            recentReports.innerHTML = '';
+        }
+        
+        // Add new row at the top
+        const newRow = `
+            <tr>
+                <td>
+                    <strong>${displayName}</strong><br>
+                    <small class="text-muted">${dateStr}</small>
+                </td>
+                <td>${displayName.split(' ')[0]}</td>
+                <td><span class="${formatBadge}">${formatText}</span></td>
+                <td>${timeStr}</td>
+                <td>~2.4 MB</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary" onclick="downloadReportAgain('${reportType}', '${format}')">
+                        <i class="bi bi-download"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary">
+                        <i class="bi bi-share"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+        
+        recentReports.insertAdjacentHTML('afterbegin', newRow);
+        
+        // Keep only last 5 reports
+        const rows = recentReports.querySelectorAll('tr');
+        if (rows.length > 5) {
+            rows[5].remove();
+        }
+    }
+    
+    // Download report again
+    function downloadReportAgain(reportType, format) {
+        generateReport(reportType, format);
+    }
+    
+    // Event Listeners
+    
+    // Form submission
+    reportForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const reportType = document.getElementById('reportType').value;
+        const format = document.querySelector('input[name="format"]:checked').value;
+        
+        if (!reportType) {
+            showStatus('Please select a report type!', 'error');
+            return;
+        }
+        
+        generateReport(reportType, format);
+    });
+    
+    // Preview report
+    previewReportBtn.addEventListener('click', function() {
+        const reportType = document.getElementById('reportType').value;
+        const format = document.querySelector('input[name="format"]:checked').value;
+        
+        if (!reportType) {
+            showStatus('Please select a report type to preview!', 'error');
+            return;
+        }
+        
+        generateReport(reportType, format, true);
+    });
+    
+    // Quick download buttons
+    document.querySelectorAll('.download-quick').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const reportType = this.dataset.type;
+            const format = this.dataset.format;
+            generateReport(reportType, format);
+        });
+    });
+    
+    // Report type cards
+    document.querySelectorAll('.report-type-card').forEach(card => {
+        card.addEventListener('click', function() {
+            const reportType = this.dataset.reportType;
+            const format = this.dataset.format;
+            
+            // Set form values
+            document.getElementById('reportType').value = reportType;
+            document.querySelector(`input[name="format"][value="${format}"]`).checked = true;
+            
+            // Scroll to form
+            reportForm.scrollIntoView({ behavior: 'smooth' });
+        });
+    });
+    
+    // Download from preview modal
+    document.getElementById('downloadFromPreview').addEventListener('click', function() {
+        const modal = document.getElementById('previewModal');
+        const reportType = modal.dataset.reportType;
+        const format = modal.dataset.format;
+        
+        bootstrap.Modal.getInstance(modal).hide();
+        generateReport(reportType, format);
+    });
+    
+    // Refresh reports
+    document.getElementById('refreshReports').addEventListener('click', function() {
+        showStatus('Reports list refreshed!');
+    });
+    
+    // View all reports
+    document.getElementById('viewAllReports').addEventListener('click', function() {
+        showStatus('Report archive feature coming soon!');
+    });
+    
+    // Initialize with today's date
+    document.addEventListener('DOMContentLoaded', function() {
+        const today = new Date().toISOString().split('T')[0];
+        const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+        
+        document.getElementById('fromDate').value = yesterday;
+        document.getElementById('toDate').value = today;
+        
+        // Load some sample recent reports
+        setTimeout(() => {
+            addToRecentReports('daily', 'pdf');
+            addToRecentReports('security', 'csv');
+            addToRecentReports('threats', 'json');
+        }, 1000);
+    });
+</script>
+{% endblock %}

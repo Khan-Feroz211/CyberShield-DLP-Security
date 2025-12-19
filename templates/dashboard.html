@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - DLP Security System</title>
+    <link rel="icon" href="/static/images/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <a href="/dashboard" class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <span class="logo-text">DLPSecure</span>
+            </a>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="/dashboard" class="nav-link active"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                    <li><a href="/scanner" class="nav-link"><i class="fas fa-search"></i> Scanner</a></li>
+                    <li><a href="/monitor" class="nav-link"><i class="fas fa-desktop"></i> Monitor</a></li>
+                    <li><a href="/alerts" class="nav-link"><i class="fas fa-bell"></i> Alerts</a></li>
+                    <li><a href="/reports" class="nav-link"><i class="fas fa-chart-bar"></i> Reports</a></li>
+                    <li><a href="/api-testing" class="nav-link"><i class="fas fa-code"></i> API Testing</a></li>
+                </ul>
+            </nav>
+            
+            <div class="user-profile">
+                <div class="status-badge">
+                    <div class="status-dot"></div>
+                    <span>System Active</span>
+                </div>
+                <div class="avatar">
+                    <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white;">
+                        <i class="fas fa-user"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">Security Dashboard</h1>
+            <p class="page-subtitle">Monitor your data protection system in real-time with comprehensive analytics and insights</p>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{% if stats and stats.total_scans %}{{ stats.total_scans }}{% else %}1245{% endif %}</h3>
+                    <p>Files Scanned</p>
+                    <div class="stat-trend trend-up">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>12% increase</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stat-card critical">
+                <div class="stat-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{% if stats and stats.critical_alerts %}{{ stats.critical_alerts }}{% else %}23{% endif %}</h3>
+                    <p>Active Alerts</p>
+                    <div class="stat-trend trend-down">
+                        <i class="fas fa-arrow-down"></i>
+                        <span>5% decrease</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stat-card success">
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{% if stats and stats.compliance_score %}{{ stats.compliance_score }}{% else %}99.8%{% endif %}</h3>
+                    <p>Compliance Score</p>
+                    <div class="stat-trend trend-up">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>2.3% increase</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stat-card warning">
+                <div class="stat-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{% if stats and stats.data_risk_score %}{{ stats.data_risk_score }}{% else %}15.2%{% endif %}</h3>
+                    <p>Data Risk Score</p>
+                    <div class="stat-trend trend-down">
+                        <i class="fas fa-arrow-down"></i>
+                        <span>3.1% decrease</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <a href="/scanner" class="action-card">
+                <div class="action-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <h4>Start Scan</h4>
+                <p>Initiate security scan on selected directories</p>
+            </a>
+            
+            <a href="/monitor" class="action-card">
+                <div class="action-icon">
+                    <i class="fas fa-desktop"></i>
+                </div>
+                <h4>Live Monitor</h4>
+                <p>Real-time file system monitoring</p>
+            </a>
+            
+            <a href="/alerts" class="action-card">
+                <div class="action-icon">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <h4>View Alerts</h4>
+                <p>Check security alerts and incidents</p>
+            </a>
+            
+            <a href="/api-testing" class="action-card">
+                <div class="action-icon">
+                    <i class="fas fa-code"></i>
+                </div>
+                <h4>API Testing</h4>
+                <p>Test and explore API endpoints</p>
+            </a>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="recent-grid">
+            <div class="activity-card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-history"></i> Recent Scans</h3>
+                    <a href="/scanner" class="btn btn-outline">View All</a>
+                </div>
+                
+                <div class="activity-list">
+                    {% if scans %}
+                        {% for scan in scans[:3] %}
+                        <div class="activity-item">
+                            <div class="activity-icon {% if scan.status == 'Critical' %}icon-danger{% elif scan.status == 'Suspicious' %}icon-warning{% else %}icon-success{% endif %}">
+                                <i class="fas fa-file-{% if scan.file_type == 'Excel' %}excel{% elif scan.file_type == 'Database' %}database{% else %}archive{% endif %}"></i>
+                            </div>
+                            <div class="activity-details">
+                                <h4>{{ scan.filename }}</h4>
+                                <p>{{ scan.sensitivity }} sensitivity • {{ scan.issues }} issues found</p>
+                            </div>
+                            <span class="activity-time">{{ scan.scan_date }}</span>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="activity-item">
+                            <div class="activity-icon icon-info">
+                                <i class="fas fa-info-circle"></i>
+                            </div>
+                            <div class="activity-details">
+                                <h4>No recent scans</h4>
+                                <p>Start a scan to see results here</p>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="activity-card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-exclamation-triangle"></i> Recent Alerts</h3>
+                    <a href="/alerts" class="btn btn-outline">View All</a>
+                </div>
+                
+                <div class="activity-list">
+                    {% if alerts %}
+                        {% for alert in alerts[:3] %}
+                        <div class="activity-item">
+                            <div class="activity-icon {% if alert.severity == 'Critical' %}icon-danger{% elif alert.severity == 'High' %}icon-warning{% else %}icon-info{% endif %}">
+                                <i class="fas fa-{% if alert.severity == 'Critical' %}skull-crossbones{% else %}exclamation-triangle{% endif %}"></i>
+                            </div>
+                            <div class="activity-details">
+                                <h4>{{ alert.type }}</h4>
+                                <p>{{ alert.description[:50] }}...</p>
+                            </div>
+                            <span class="activity-time">{{ alert.timestamp }}</span>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="activity-item">
+                            <div class="activity-icon icon-success">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="activity-details">
+                                <h4>No active alerts</h4>
+                                <p>System is running smoothly</p>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- API Quick Links -->
+        <div class="activity-card" style="margin-top: 40px;">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-rocket"></i> Quick API Access</h3>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px;">
+                <a href="/api/health" class="btn" target="_blank" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                    <i class="fas fa-heartbeat"></i> Health Check
+                </a>
+                <a href="/api/stats" class="btn" target="_blank" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <i class="fas fa-chart-line"></i> System Stats
+                </a>
+                <a href="/api/sample-data" class="btn" target="_blank" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                    <i class="fas fa-database"></i> Sample Data
+                </a>
+                <a href="/api-testing" class="btn" target="_blank" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <i class="fas fa-code"></i> API Console
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="copyright">
+                <p>&copy; 2024 DLP Security System. Enterprise Data Protection.</p>
+            </div>
+            <div class="footer-links">
+                <a href="/api/health" target="_blank"><i class="fas fa-heartbeat"></i> Health</a>
+                <a href="/api/stats" target="_blank"><i class="fas fa-chart-line"></i> Stats</a>
+                <a href="/api-testing"><i class="fas fa-code"></i> API Docs</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+    // Add animation to stats cards on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const statCards = document.querySelectorAll('.stat-card');
+        statCards.forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.1}s`;
+            card.classList.add('animate__animated', 'animate__fadeInUp');
+        });
+    });
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+</body>
+</html>

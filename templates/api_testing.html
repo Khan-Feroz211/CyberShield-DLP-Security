@@ -1,0 +1,640 @@
+{% extends "base.html" %}
+
+{% block title %}API Testing Console - DLP Security System{% endblock %}
+{% block page_title %}API Testing Console{% endblock %}
+
+{% block extra_css %}
+<style>
+    .api-section {
+        margin-bottom: 30px;
+    }
+    .endpoint-card {
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        background: #fff;
+    }
+    .endpoint-header {
+        background: #f8f9fa;
+        padding: 12px 15px;
+        border-bottom: 1px solid #dee2e6;
+        border-radius: 8px 8px 0 0;
+    }
+    .endpoint-body {
+        padding: 15px;
+    }
+    .method {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 4px;
+        font-weight: bold;
+        font-size: 0.85em;
+        margin-right: 10px;
+    }
+    .method-get { background: #61affe; color: white; }
+    .method-post { background: #49cc90; color: white; }
+    .method-put { background: #fca130; color: white; }
+    .method-delete { background: #f93e3e; color: white; }
+    .endpoint-url {
+        font-family: 'Courier New', monospace;
+        background: #f8f9fa;
+        padding: 8px;
+        border-radius: 4px;
+        font-size: 0.9em;
+        margin: 10px 0;
+    }
+    .param-table {
+        width: 100%;
+        font-size: 0.9em;
+    }
+    .param-table th {
+        background: #f8f9fa;
+    }
+    .test-section {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 10px;
+    }
+    .test-btn {
+        margin-top: 10px;
+    }
+    .response-area {
+        font-family: 'Courier New', monospace;
+        background: #2c3e50;
+        color: #ecf0f1;
+        padding: 15px;
+        border-radius: 4px;
+        margin-top: 15px;
+        max-height: 300px;
+        overflow-y: auto;
+        font-size: 0.9em;
+    }
+    .tab-content {
+        padding: 15px 0;
+    }
+    .copy-btn {
+        cursor: pointer;
+        color: #3498db;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <!-- API Console Header -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h4><i class="bi bi-code-slash"></i> DLP Security System API Console</h4>
+                <p class="text-muted">Test and explore all API endpoints in real-time. All endpoints require authentication via API key.</p>
+                
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="input-group mb-3">
+                            <span class="input-group-text"><i class="bi bi-key"></i></span>
+                            <input type="text" class="form-control" id="apiKey" placeholder="Enter your API key" value="demo_key_123456">
+                            <button class="btn btn-outline-secondary" type="button" id="copyKey">
+                                <i class="bi bi-clipboard"></i> Copy
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-grid">
+                            <button class="btn btn-primary" id="testAllEndpoints">
+                                <i class="bi bi-play-circle"></i> Test All Endpoints
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- API Navigation Tabs -->
+        <ul class="nav nav-tabs" id="apiTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="health-tab" data-bs-toggle="tab" data-bs-target="#health">
+                    <i class="bi bi-heart-pulse"></i> System Health
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="scanner-tab" data-bs-toggle="tab" data-bs-target="#scanner">
+                    <i class="bi bi-search"></i> Scanner APIs
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="monitor-tab" data-bs-toggle="tab" data-bs-target="#monitor">
+                    <i class="bi bi-eye"></i> Monitor APIs
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="alerts-tab" data-bs-toggle="tab" data-bs-target="#alerts">
+                    <i class="bi bi-bell"></i> Alert APIs
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="reports-tab" data-bs-toggle="tab" data-bs-target="#reports">
+                    <i class="bi bi-file-text"></i> Report APIs
+                </button>
+            </li>
+        </ul>
+        
+        <div class="tab-content" id="apiTabContent">
+            <!-- System Health Tab -->
+            <div class="tab-pane fade show active" id="health" role="tabpanel">
+                <div class="api-section">
+                    <div class="endpoint-card">
+                        <div class="endpoint-header">
+                            <span class="method method-get">GET</span>
+                            <strong>System Health Check</strong>
+                        </div>
+                        <div class="endpoint-body">
+                            <div class="endpoint-url">http://localhost:5001/api/health</div>
+                            <p>Check the operational status of all system components.</p>
+                            
+                            <h6>Parameters:</h6>
+                            <table class="table param-table">
+                                <tr>
+                                    <th>Parameter</th>
+                                    <th>Type</th>
+                                    <th>Required</th>
+                                    <th>Description</th>
+                                </tr>
+                                <tr>
+                                    <td>detailed</td>
+                                    <td>boolean</td>
+                                    <td>No</td>
+                                    <td>Return detailed component status</td>
+                                </tr>
+                            </table>
+                            
+                            <div class="test-section">
+                                <h6>Test This Endpoint:</h6>
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" id="detailedCheck">
+                                    <label class="form-check-label" for="detailedCheck">Include detailed information</label>
+                                </div>
+                                <button class="btn btn-primary test-btn" onclick="testEndpoint('health')">
+                                    <i class="bi bi-play-fill"></i> Test Health Check
+                                </button>
+                            </div>
+                            
+                            <div class="response-area" id="health-response">
+                                <!-- Response will appear here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Scanner APIs Tab -->
+            <div class="tab-pane fade" id="scanner" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="endpoint-card">
+                            <div class="endpoint-header">
+                                <span class="method method-post">POST</span>
+                                <strong>Start Scan</strong>
+                            </div>
+                            <div class="endpoint-body">
+                                <div class="endpoint-url">http://localhost:5001/api/scan</div>
+                                <p>Initiate a new content scan.</p>
+                                
+                                <h6>Request Body:</h6>
+                                <div class="mb-3">
+                                    <label class="form-label">Scan Type</label>
+                                    <select class="form-select" id="scanType">
+                                        <option value="quick">Quick Scan</option>
+                                        <option value="deep">Deep Scan</option>
+                                        <option value="targeted">Targeted Scan</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Target Path (optional)</label>
+                                    <input type="text" class="form-control" id="scanPath" placeholder="/path/to/scan">
+                                </div>
+                                
+                                <div class="test-section">
+                                    <button class="btn btn-primary" onclick="testEndpoint('startScan')">
+                                        <i class="bi bi-play-fill"></i> Start Scan
+                                    </button>
+                                </div>
+                                
+                                <div class="response-area" id="scan-response">
+                                    <!-- Response will appear here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="endpoint-card">
+                            <div class="endpoint-header">
+                                <span class="method method-get">GET</span>
+                                <strong>Get Scan Results</strong>
+                            </div>
+                            <div class="endpoint-body">
+                                <div class="endpoint-url">http://localhost:5001/api/scan/results/:id</div>
+                                <p>Retrieve results of a completed scan.</p>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Scan ID</label>
+                                    <input type="text" class="form-control" id="scanId" placeholder="Enter scan ID">
+                                </div>
+                                
+                                <div class="test-section">
+                                    <button class="btn btn-primary" onclick="testEndpoint('getScanResults')">
+                                        <i class="bi bi-play-fill"></i> Get Results
+                                    </button>
+                                </div>
+                                
+                                <div class="response-area" id="scan-results-response">
+                                    <!-- Response will appear here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="endpoint-card">
+                            <div class="endpoint-header">
+                                <span class="method method-get">GET</span>
+                                <strong>Scan History</strong>
+                            </div>
+                            <div class="endpoint-body">
+                                <div class="endpoint-url">http://localhost:5001/api/scan/history?limit=10</div>
+                                <p>Get recent scan history.</p>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Limit Results</label>
+                                    <input type="number" class="form-control" id="historyLimit" value="10" min="1" max="100">
+                                </div>
+                                
+                                <div class="test-section">
+                                    <button class="btn btn-primary" onclick="testEndpoint('scanHistory')">
+                                        <i class="bi bi-play-fill"></i> Get History
+                                    </button>
+                                </div>
+                                
+                                <div class="response-area" id="history-response">
+                                    <!-- Response will appear here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="endpoint-card">
+                            <div class="endpoint-header">
+                                <span class="method method-get">GET</span>
+                                <strong>Active Scans</strong>
+                            </div>
+                            <div class="endpoint-body">
+                                <div class="endpoint-url">http://localhost:5001/api/scan/active</div>
+                                <p>Get currently running scans.</p>
+                                
+                                <div class="test-section">
+                                    <button class="btn btn-primary" onclick="testEndpoint('activeScans')">
+                                        <i class="bi bi-play-fill"></i> Check Active Scans
+                                    </button>
+                                </div>
+                                
+                                <div class="response-area" id="active-response">
+                                    <!-- Response will appear here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Monitor APIs Tab -->
+            <div class="tab-pane fade" id="monitor" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="endpoint-card">
+                            <div class="endpoint-header">
+                                <span class="method method-get">GET</span>
+                                <strong>Get System Metrics</strong>
+                            </div>
+                            <div class="endpoint-body">
+                                <div class="endpoint-url">http://localhost:5001/api/metrics</div>
+                                <p>Retrieve current system performance metrics.</p>
+                                
+                                <div class="test-section">
+                                    <button class="btn btn-primary" onclick="testEndpoint('metrics')">
+                                        <i class="bi bi-play-fill"></i> Get Metrics
+                                    </button>
+                                </div>
+                                
+                                <div class="response-area" id="metrics-response">
+                                    <!-- Response will appear here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="endpoint-card">
+                            <div class="endpoint-header">
+                                <span class="method method-get">GET</span>
+                                <strong>Real-time Events</strong>
+                            </div>
+                            <div class="endpoint-body">
+                                <div class="endpoint-url">http://localhost:5001/api/events/realtime</div>
+                                <p>Get real-time security events (WebSocket).</p>
+                                
+                                <div class="test-section">
+                                    <button class="btn btn-primary" onclick="testEndpoint('realtimeEvents')">
+                                        <i class="bi bi-play-fill"></i> Connect to Events
+                                    </button>
+                                    <button class="btn btn-secondary" onclick="stopRealtime()">
+                                        <i class="bi bi-stop-fill"></i> Stop
+                                    </button>
+                                </div>
+                                
+                                <div class="response-area" id="events-response">
+                                    <!-- Events will appear here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Alert APIs Tab -->
+            <div class="tab-pane fade" id="alerts" role="tabpanel">
+                <div class="endpoint-card">
+                    <div class="endpoint-header">
+                        <span class="method method-get">GET</span>
+                        <strong>Get Alerts</strong>
+                    </div>
+                    <div class="endpoint-body">
+                        <div class="endpoint-url">http://localhost:5001/api/alerts</div>
+                        <p>Retrieve security alerts with filtering options.</p>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Severity</label>
+                                <select class="form-select" id="alertSeverity">
+                                    <option value="">All</option>
+                                    <option value="critical">Critical</option>
+                                    <option value="high">High</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="low">Low</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Status</label>
+                                <select class="form-select" id="alertStatus">
+                                    <option value="">All</option>
+                                    <option value="new">New</option>
+                                    <option value="investigating">Investigating</option>
+                                    <option value="resolved">Resolved</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Limit</label>
+                                <input type="number" class="form-control" id="alertLimit" value="20">
+                            </div>
+                        </div>
+                        
+                        <div class="test-section">
+                            <button class="btn btn-primary" onclick="testEndpoint('getAlerts')">
+                                <i class="bi bi-play-fill"></i> Get Alerts
+                            </button>
+                        </div>
+                        
+                        <div class="response-area" id="alerts-response">
+                            <!-- Response will appear here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Report APIs Tab -->
+            <div class="tab-pane fade" id="reports" role="tabpanel">
+                <div class="endpoint-card">
+                    <div class="endpoint-header">
+                        <span class="method method-post">POST</span>
+                        <strong>Generate Report</strong>
+                    </div>
+                    <div class="endpoint-body">
+                        <div class="endpoint-url">http://localhost:5001/api/report</div>
+                        <p>Generate and download security reports.</p>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Report Type</label>
+                            <select class="form-select" id="reportType">
+                                <option value="daily">Daily Summary</option>
+                                <option value="weekly">Weekly Report</option>
+                                <option value="monthly">Monthly Report</option>
+                                <option value="security">Security Audit</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Format</label>
+                            <select class="form-select" id="reportFormat">
+                                <option value="pdf">PDF</option>
+                                <option value="csv">CSV</option>
+                                <option value="json">JSON</option>
+                            </select>
+                        </div>
+                        
+                        <div class="test-section">
+                            <button class="btn btn-primary" onclick="testEndpoint('generateReport')">
+                                <i class="bi bi-play-fill"></i> Generate Report
+                            </button>
+                        </div>
+                        
+                        <div class="response-area" id="report-response">
+                            <!-- Response will appear here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Copy API key to clipboard
+    document.getElementById('copyKey').addEventListener('click', function() {
+        const apiKey = document.getElementById('apiKey');
+        apiKey.select();
+        document.execCommand('copy');
+        alert('API key copied to clipboard!');
+    });
+    
+    // Test all endpoints
+    document.getElementById('testAllEndpoints').addEventListener('click', function() {
+        if (confirm('This will test all endpoints sequentially. Continue?')) {
+            const endpoints = ['health', 'startScan', 'metrics', 'getAlerts'];
+            endpoints.forEach((endpoint, index) => {
+                setTimeout(() => testEndpoint(endpoint), index * 1000);
+            });
+        }
+    });
+    
+    // Test individual endpoints
+    function testEndpoint(endpoint) {
+        const apiKey = document.getElementById('apiKey').value;
+        
+        switch(endpoint) {
+            case 'health':
+                fetch('/api/health')
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('health-response').innerHTML = 
+                            `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                    });
+                break;
+                
+            case 'startScan':
+                const scanType = document.getElementById('scanType').value;
+                const scanPath = document.getElementById('scanPath').value;
+                
+                fetch('/api/scan', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        type: scanType,
+                        path: scanPath,
+                        api_key: apiKey
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('scan-response').innerHTML = 
+                        `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                });
+                break;
+                
+            case 'getScanResults':
+                const scanId = document.getElementById('scanId').value;
+                fetch(`/api/scan/results/${scanId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('scan-results-response').innerHTML = 
+                            `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                    });
+                break;
+                
+            case 'scanHistory':
+                const limit = document.getElementById('historyLimit').value;
+                fetch(`/api/scan/history?limit=${limit}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('history-response').innerHTML = 
+                            `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                    });
+                break;
+                
+            case 'activeScans':
+                fetch('/api/scan/active')
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('active-response').innerHTML = 
+                            `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                    });
+                break;
+                
+            case 'metrics':
+                fetch('/api/metrics')
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('metrics-response').innerHTML = 
+                            `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                    });
+                break;
+                
+            case 'getAlerts':
+                const severity = document.getElementById('alertSeverity').value;
+                const status = document.getElementById('alertStatus').value;
+                const alertLimit = document.getElementById('alertLimit').value;
+                
+                let url = `/api/alerts?limit=${alertLimit}`;
+                if (severity) url += `&severity=${severity}`;
+                if (status) url += `&status=${status}`;
+                
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('alerts-response').innerHTML = 
+                            `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                    });
+                break;
+                
+            case 'generateReport':
+                const reportType = document.getElementById('reportType').value;
+                const reportFormat = document.getElementById('reportFormat').value;
+                
+                fetch('/api/report', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        type: reportType,
+                        format: reportFormat,
+                        api_key: apiKey
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('report-response').innerHTML = 
+                        `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                });
+                break;
+        }
+    }
+    
+    // Simulate real-time events
+    let eventInterval;
+    function stopRealtime() {
+        clearInterval(eventInterval);
+        document.getElementById('events-response').innerHTML = 
+            '<em>Realtime connection stopped.</em>';
+    }
+    
+    function simulateRealtimeEvents() {
+        const events = [
+            "New user login detected: admin",
+            "File scan completed: 245 files checked",
+            "Policy violation: Data transfer to external device",
+            "System backup initiated",
+            "Security alert: Multiple failed login attempts"
+        ];
+        
+        let index = 0;
+        const responseArea = document.getElementById('events-response');
+        responseArea.innerHTML = '<em>Connected to real-time events...</em>\n';
+        
+        eventInterval = setInterval(() => {
+            if (index < events.length) {
+                const timestamp = new Date().toLocaleTimeString();
+                responseArea.innerHTML += `[${timestamp}] ${events[index]}\n`;
+                responseArea.scrollTop = responseArea.scrollHeight;
+                index++;
+            } else {
+                stopRealtime();
+            }
+        }, 2000);
+    }
+    
+    // Initialize tab behavior
+    document.addEventListener('DOMContentLoaded', function() {
+        const tabLinks = document.querySelectorAll('#apiTabs .nav-link');
+        tabLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                // Clear all responses when switching tabs
+                const responseAreas = document.querySelectorAll('.response-area');
+                responseAreas.forEach(area => area.innerHTML = '');
+                stopRealtime();
+            });
+        });
+    });
+</script>
+{% endblock %}

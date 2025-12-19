@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DLP Security - Policies Documentation</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #27ae60;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #27ae60;
+            margin-top: 30px;
+        }
+        h3 {
+            color: #2c3e50;
+        }
+        .section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #27ae60;
+        }
+        .policy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .policy-card {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border: 1px solid #e1e5eb;
+        }
+        .policy-card.highlight {
+            background: #d4edda;
+            border-color: #c3e6cb;
+        }
+        
+        .code-block {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            margin: 15px 0;
+            overflow-x: auto;
+        }
+        .btn {
+            display: inline-block;
+            background: #27ae60;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px 5px;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #219653;
+        }
+        .btn-secondary {
+            background: #95a5a6;
+        }
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+        ul {
+            line-height: 1.8;
+        }
+        li {
+            margin: 8px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .workflow {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 2px dashed #27ae60;
+        }
+        .workflow-step {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+        }
+        .step-number {
+            background: #27ae60;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Policy Management Documentation</h1>
+        
+        <div class="section">
+            <h2>Overview</h2>
+            <p>Create, manage, and enforce data loss prevention policies across your organization.</p>
+            
+            <div class="policy-grid">
+                <div class="policy-card">
+                    <h3>Data Classification</h3>
+                    <p>Define data sensitivity levels</p>
+                </div>
+                <div class="policy-card">
+                    <h3>Access Control</h3>
+                    <p>Manage who can access what data</p>
+                </div>
+                <div class="policy-card highlight">
+                    <h3>Encryption Rules</h3>
+                    <p>Automatic data protection</p>
+                </div>
+                <div class="policy-card">
+                    <h3>Transfer Restrictions</h3>
+                    <p>Control data movement</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Policy Types</h2>
+            <table>
+                <tr>
+                    <th>Policy Type</th>
+                    <th>Description</th>
+                    <th>Default Status</th>
+                </tr>
+                <tr>
+                    <td><strong>Data Classification</strong></td>
+                    <td>Labels data based on sensitivity (Public, Internal, Confidential, Restricted)</td>
+                    <td>Active</td>
+                </tr>
+                <tr>
+                    <td><strong>Access Control</strong></td>
+                    <td>Defines who can access, modify, or delete data</td>
+                    <td>Active</td>
+                </tr>
+                <tr>
+                    <td><strong>Encryption</strong></td>
+                    <td>Automatically encrypt sensitive data at rest and in transit</td>
+                    <td>Active</td>
+                </tr>
+                <tr>
+                    <td><strong>Transfer Rules</strong></td>
+                    <td>Controls how data can be shared or transferred</td>
+                    <td>Active</td>
+                </tr>
+                <tr>
+                    <td><strong>Retention Policies</strong></td>
+                    <td>Defines how long data should be kept before deletion</td>
+                    <td>Active</td>
+                </tr>
+                <tr>
+                    <td><strong>Monitoring Rules</strong></td>
+                    <td>Specifies what activities to monitor and alert on</td>
+                    <td>Active</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>Policy Components</h2>
+            <ul>
+                <li><strong>Rules</strong>: Condition-based triggers for policy enforcement</li>
+                <li><strong>Actions</strong>: What happens when rule conditions are met</li>
+                <li><strong>Exclusions</strong>: Exceptions to policy rules</li>
+                <li><strong>Schedules</strong>: Time-based policy enforcement</li>
+                <li><strong>Notifications</strong>: Alert configurations for policy violations</li>
+                <li><strong>Target Groups</strong>: Users/departments the policy applies to</li>
+                <li><strong>Priority Levels</strong>: Determines which policy takes precedence</li>
+            </ul>
+        </div>
+
+        <div class="workflow">
+            <h2>Policy Creation Workflow</h2>
+            
+            <div class="workflow-step">
+                <div class="step-number">1</div>
+                <div>
+                    <h3>Define Policy Scope</h3>
+                    <p>Specify what data, users, and systems the policy applies to</p>
+                </div>
+            </div>
+            
+            <div class="workflow-step">
+                <div class="step-number">2</div>
+                <div>
+                    <h3>Set Conditions</h3>
+                    <p>Define triggers and criteria for policy enforcement</p>
+                </div>
+            </div>
+            
+            <div class="workflow-step">
+                <div class="step-number">3</div>
+                <div>
+                    <h3>Configure Actions</h3>
+                    <p>Specify what actions to take when conditions are met</p>
+                </div>
+            </div>
+            
+            <div class="workflow-step">
+                <div class="step-number">4</div>
+                <div>
+                    <h3>Assign to Groups</h3>
+                    <p>Apply policy to specific user groups or departments</p>
+                </div>
+            </div>
+            
+            <div class="workflow-step">
+                <div class="step-number">5</div>
+                <div>
+                    <h3>Review & Test</h3>
+                    <p>Validate policy behavior before activation</p>
+                </div>
+            </div>
+            
+            <div class="workflow-step">
+                <div class="step-number">6</div>
+                <div>
+                    <h3>Activate Policy</h3>
+                    <p>Enable policy for enforcement</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="warning">
+            <strong>Important:</strong> Always test policies in a non-production environment first.
+            Consider business impact before enforcing restrictive policies.
+        </div>
+
+        <div class="section">
+            <h2>Policy API Endpoints</h2>
+            <div class="code-block">
+                GET    /api/policies                   # List all policies<br>
+                POST   /api/policies                   # Create new policy<br>
+                GET    /api/policies/{id}              # Get policy details<br>
+                PUT    /api/policies/{id}              # Update policy<br>
+                DELETE /api/policies/{id}              # Delete policy<br>
+                POST   /api/policies/{id}/test         # Test policy<br>
+                PUT    /api/policies/{id}/activate     # Activate policy<br>
+                PUT    /api/policies/{id}/deactivate   # Deactivate policy<br>
+                GET    /api/policies/{id}/violations   # Get policy violations
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Access Policy Manager</h2>
+            <a href="http://localhost:5000/policies" class="btn" target="_blank">Open Policy Manager</a>
+            <a href="http://localhost:5000/api" class="btn btn-secondary" target="_blank">API Console</a>
+            <a href="http://localhost:5000/" class="btn btn-secondary" target="_blank">Back to Dashboard</a>
+        </div>
+    </div>
+</body>
+</html>

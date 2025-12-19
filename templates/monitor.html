@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+
+{% block title %}Security Monitor - DLP Security System{% endblock %}
+{% block page_title %}Security Monitor{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <!-- Live Monitoring -->
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-eye"></i> Live Monitoring Dashboard
+                <span class="badge bg-danger float-end">LIVE</span>
+            </div>
+            <div class="card-body">
+                <div class="row text-center mb-4">
+                    <div class="col-md-3">
+                        <div class="display-6 text-danger">12</div>
+                        <small>Critical Alerts</small>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="display-6 text-warning">24</div>
+                        <small>Warnings</small>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="display-6 text-info">156</div>
+                        <small>Active Sessions</small>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="display-6 text-success">98%</div>
+                        <small>System Health</small>
+                    </div>
+                </div>
+                
+                <!-- Activity Stream -->
+                <h6><i class="bi bi-activity"></i> Recent Activity Stream</h6>
+                <div class="activity-stream" style="max-height: 300px; overflow-y: auto;">
+                    {% for alert in alerts %}
+                    <div class="alert alert-{{ alert.type }} alert-dismissible fade show mb-2" role="alert">
+                        <i class="bi bi-{{ alert.icon }} me-2"></i>
+                        <strong>{{ alert.title }}</strong> - {{ alert.message }}
+                        <small class="text-muted float-end">{{ alert.time }}</small>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- System Metrics -->
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-speedometer2"></i> System Metrics
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <strong>CPU Usage</strong>
+                        <div class="float-end">65%</div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-info" style="width: 65%"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <strong>Memory Usage</strong>
+                        <div class="float-end">78%</div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-warning" style="width: 78%"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <strong>Network Traffic</strong>
+                        <div class="float-end">45%</div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-success" style="width: 45%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- Alert Summary -->
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-bell"></i> Alert Summary
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item">
+                        <i class="bi bi-exclamation-triangle text-danger me-2"></i>
+                        Critical Alerts
+                        <span class="badge bg-danger float-end">12</span>
+                    </div>
+                    <div class="list-group-item">
+                        <i class="bi bi-exclamation-circle text-warning me-2"></i>
+                        Policy Violations
+                        <span class="badge bg-warning float-end">8</span>
+                    </div>
+                    <div class="list-group-item">
+                        <i class="bi bi-shield-exclamation text-info me-2"></i>
+                        Security Events
+                        <span class="badge bg-info float-end">45</span>
+                    </div>
+                    <div class="list-group-item">
+                        <i class="bi bi-check-circle text-success me-2"></i>
+                        Resolved Issues
+                        <span class="badge bg-success float-end">156</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Monitoring Controls -->
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-sliders"></i> Monitoring Controls
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">Alert Sensitivity</label>
+                    <input type="range" class="form-range" min="1" max="10" value="7" id="sensitivity">
+                    <div class="d-flex justify-content-between">
+                        <small>Low</small>
+                        <small>Medium</small>
+                        <small>High</small>
+                    </div>
+                </div>
+                
+                <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" type="checkbox" id="realTimeMonitoring" checked>
+                    <label class="form-check-label" for="realTimeMonitoring">
+                        Real-time Monitoring
+                    </label>
+                </div>
+                
+                <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" type="checkbox" id="autoResponse" checked>
+                    <label class="form-check-label" for="autoResponse">
+                        Auto-response
+                    </label>
+                </div>
+                
+                <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" type="checkbox" id="emailNotifications">
+                    <label class="form-check-label" for="emailNotifications">
+                        Email Notifications
+                    </label>
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <button class="btn btn-primary" id="saveSettings">
+                        <i class="bi bi-save"></i> Save Settings
+                    </button>
+                    <a href="/alerts" class="btn btn-outline-primary">
+                        <i class="bi bi-bell"></i> View All Alerts
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    document.getElementById('saveSettings').addEventListener('click', function() {
+        alert('Monitoring settings saved successfully!');
+    });
+    
+    // Simulate live updates
+    setInterval(function() {
+        // Update metrics randomly for demo
+        const criticalAlerts = document.querySelector('.display-6.text-danger');
+        const warnings = document.querySelector('.display-6.text-warning');
+        
+        // Small random fluctuations for demo
+        const currentCritical = parseInt(criticalAlerts.textContent);
+        const currentWarnings = parseInt(warnings.textContent);
+        
+        criticalAlerts.textContent = currentCritical + (Math.random() > 0.7 ? 1 : 0);
+        warnings.textContent = currentWarnings + (Math.random() > 0.8 ? 1 : 0);
+    }, 5000);
+</script>
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Alerts Center - DLP Security System{% endblock %}
+{% block page_title %}Alerts Center{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <!-- Alert Filters -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <select class="form-select" id="severityFilter">
+                            <option value="">All Severity</option>
+                            <option value="critical">Critical</option>
+                            <option value="high">High</option>
+                            <option value="medium">Medium</option>
+                            <option value="low">Low</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="statusFilter">
+                            <option value="">All Status</option>
+                            <option value="new">New</option>
+                            <option value="investigating">Investigating</option>
+                            <option value="resolved">Resolved</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="date" class="form-control" id="dateFilter">
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-primary w-100" id="applyFilters">
+                            <i class="bi bi-funnel"></i> Apply Filters
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Alerts Table -->
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-bell"></i> Security Alerts
+                <button class="btn btn-sm btn-outline-danger float-end" id="clearAllAlerts">
+                    <i class="bi bi-trash"></i> Clear All
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Severity</th>
+                                <th>Time</th>
+                                <th>Alert Type</th>
+                                <th>Description</th>
+                                <th>Source</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for alert in alerts %}
+                            <tr>
+                                <td>
+                                    {% if alert.type == 'danger' %}
+                                    <span class="badge bg-danger">Critical</span>
+                                    {% elif alert.type == 'warning' %}
+                                    <span class="badge bg-warning">High</span>
+                                    {% else %}
+                                    <span class="badge bg-info">Info</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ alert.time }}</td>
+                                <td>{{ alert.title }}</td>
+                                <td>{{ alert.message }}</td>
+                                <td>System Monitor</td>
+                                <td><span class="badge bg-secondary">New</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-success">
+                                        <i class="bi bi-check"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

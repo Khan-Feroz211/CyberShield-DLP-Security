@@ -1,0 +1,57 @@
+[
+  {
+    "id": 1,
+    "username": "admin",
+    "name": "System Administrator",
+    "email": "admin@company.com",
+    "department": "IT",
+    "role": "Administrator",
+    "last_login": "2025-12-19 14:30:00",
+    "status": "active",
+    "permissions": ["full_access", "scan", "monitor", "reports", "policies"]
+  },
+  {
+    "id": 2,
+    "username": "jane.smith",
+    "name": "Jane Smith",
+    "email": "jane.smith@company.com",
+    "department": "Finance",
+    "role": "Manager",
+    "last_login": "2025-12-19 09:15:00",
+    "status": "active",
+    "permissions": ["view_reports", "upload_files"]
+  },
+  {
+    "id": 3,
+    "username": "john.doe",
+    "name": "John Doe",
+    "email": "john.doe@company.com",
+    "department": "Marketing",
+    "role": "Analyst",
+    "last_login": "2025-12-19 11:45:00",
+    "status": "active",
+    "permissions": ["view_reports"]
+  },
+  {
+    "id": 4,
+    "username": "security.team",
+    "name": "Security Team",
+    "email": "security@company.com",
+    "department": "Security",
+    "role": "Security Analyst",
+    "last_login": "2025-12-19 16:30:00",
+    "status": "active",
+    "permissions": ["scan", "monitor", "alerts", "investigate"]
+  },
+  {
+    "id": 5,
+    "username": "hr.admin",
+    "name": "HR Administrator",
+    "email": "hr@company.com",
+    "department": "Human Resources",
+    "role": "Manager",
+    "last_login": "2025-12-19 13:20:00",
+    "status": "active",
+    "permissions": ["view_reports", "upload_files", "manage_users"]
+  }
+]
