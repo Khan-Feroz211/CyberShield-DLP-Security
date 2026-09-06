@@ -1,12 +1,22 @@
 import unittest
 import json
 import pyotp
+from unittest.mock import patch
 from app import app, USERS_DATA
 
 class TestMFASystem(unittest.TestCase):
     def setUp(self):
         self.client = app.test_client()
         self.client.testing = True
+        self.save_patcher = patch('app.save_users', return_value=True)
+        self.mock_save_users = self.save_patcher.start()
+
+    def tearDown(self):
+        self.save_patcher.stop()
+        for user in USERS_DATA:
+            user['mfa_enabled'] = False
+            user['mfa_secret'] = None
+            user['backup_codes'] = []
 
     def test_mfa_setup(self):
         """Test MFA Setup endpoint returns valid TOTP secret and QR code base64 image."""

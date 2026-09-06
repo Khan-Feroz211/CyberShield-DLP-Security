@@ -48,15 +48,9 @@
     "permissions": [
       "view_reports"
     ],
-    "mfa_enabled": true,
-    "mfa_secret": "TF4CQIUMOW2DX5LDMXH3FFOOCQIXEIIH",
-    "backup_codes": [
-      "5536-4082",
-      "7784-1478",
-      "1745-9939",
-      "3889-8277",
-      "1389-9331"
-    ]
+    "mfa_enabled": false,
+    "mfa_secret": null,
+    "backup_codes": []
   },
   {
     "id": 4,
