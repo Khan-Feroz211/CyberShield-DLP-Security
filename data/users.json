@@ -8,7 +8,16 @@
     "role": "Administrator",
     "last_login": "2025-12-19 14:30:00",
     "status": "active",
-    "permissions": ["full_access", "scan", "monitor", "reports", "policies"]
+    "permissions": [
+      "full_access",
+      "scan",
+      "monitor",
+      "reports",
+      "policies"
+    ],
+    "mfa_enabled": false,
+    "mfa_secret": null,
+    "backup_codes": []
   },
   {
     "id": 2,
@@ -19,7 +28,13 @@
     "role": "Manager",
     "last_login": "2025-12-19 09:15:00",
     "status": "active",
-    "permissions": ["view_reports", "upload_files"]
+    "permissions": [
+      "view_reports",
+      "upload_files"
+    ],
+    "mfa_enabled": false,
+    "mfa_secret": null,
+    "backup_codes": []
   },
   {
     "id": 3,
@@ -30,7 +45,18 @@
     "role": "Analyst",
     "last_login": "2025-12-19 11:45:00",
     "status": "active",
-    "permissions": ["view_reports"]
+    "permissions": [
+      "view_reports"
+    ],
+    "mfa_enabled": true,
+    "mfa_secret": "PN32H2IQHM5N64E6MTQZLYCVLDFL4W72",
+    "backup_codes": [
+      "8359-4489",
+      "3381-1770",
+      "1225-7258",
+      "3943-4357",
+      "4722-2939"
+    ]
   },
   {
     "id": 4,
@@ -41,7 +67,21 @@
     "role": "Security Analyst",
     "last_login": "2025-12-19 16:30:00",
     "status": "active",
-    "permissions": ["scan", "monitor", "alerts", "investigate"]
+    "permissions": [
+      "scan",
+      "monitor",
+      "alerts",
+      "investigate"
+    ],
+    "mfa_enabled": true,
+    "mfa_secret": "KVKFKRCPNZQUY2LU",
+    "backup_codes": [
+      "2233-4455",
+      "6677-8899",
+      "3344-5566",
+      "7788-9900",
+      "1133-5577"
+    ]
   },
   {
     "id": 5,
@@ -52,6 +92,13 @@
     "role": "Manager",
     "last_login": "2025-12-19 13:20:00",
     "status": "active",
-    "permissions": ["view_reports", "upload_files", "manage_users"]
+    "permissions": [
+      "view_reports",
+      "upload_files",
+      "manage_users"
+    ],
+    "mfa_enabled": false,
+    "mfa_secret": null,
+    "backup_codes": []
   }
 ]

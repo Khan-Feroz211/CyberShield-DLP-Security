@@ -5,6 +5,9 @@ import random
 import os
 import csv
 import io
+import pyotp
+import qrcode
+import base64
 
 app = Flask(__name__)
 
@@ -18,6 +21,17 @@ def intcomma(value):
 
 # Register the filter
 app.jinja_env.filters['intcomma'] = intcomma
+
+# Helper to save users back to file
+def save_users(users_data):
+    data_dir = os.path.join(os.path.dirname(__file__), 'data')
+    try:
+        with open(os.path.join(data_dir, 'users.json'), 'w') as f:
+            json.dump(users_data, f, indent=2)
+        return True
+    except Exception as e:
+        print(f"Error saving users: {e}")
+        return False
 
 # Load data from files
 def load_data():
@@ -71,12 +85,32 @@ SECURITY_ALERTS = [
      "message": "Multiple failed login attempts for user admin", "time": "13:45"},
 ]
 
+# Helper function to generate base64 QR Code
+def generate_qr_code_base64(provisioning_uri):
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=8,
+        border=3,
+    )
+    qr.add_data(provisioning_uri)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white")
+
+    buffered = io.BytesIO()
+    img.save(buffered, format="PNG")
+    img_str = base64.b64encode(buffered.getvalue()).decode('utf-8')
+    return f"data:image/png;base64,{img_str}"
+
+# Helper function to generate random backup codes
+def generate_backup_codes(count=5):
+    return [f"{random.randint(1000, 9999)}-{random.randint(1000, 9999)}" for _ in range(count)]
+
 # ============ MAIN PAGES ============
 
 @app.route('/')
 def index():
     """Main dashboard page"""
-    # Calculate statistics
     total_scans = len(SCANS_DATA)
     total_threats = sum(scan['threats_found'] for scan in SCANS_DATA)
     total_users = len(USERS_DATA)
@@ -170,11 +204,10 @@ def api_docs():
 @app.route('/api/report/generate', methods=['POST'])
 def generate_report():
     """Generate and download reports"""
-    data = request.json
+    data = request.json or {}
     report_type = data.get('type', 'daily')
     format_type = data.get('format', 'pdf')
     
-    # Generate report content based on type
     if report_type == 'daily':
         content = generate_daily_report()
     elif report_type == 'weekly':
@@ -184,21 +217,17 @@ def generate_report():
     else:
         content = generate_custom_report(report_type)
     
-    # Create filename
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
     filename = f"dlp_report_{report_type}_{timestamp}"
     
     if format_type == 'csv':
         filename += '.csv'
-        # Create CSV response
         output = io.StringIO()
         writer = csv.writer(output)
         
-        # Write header
         writer.writerow(['DLP Security Report', report_type, timestamp])
         writer.writerow([])
         
-        # Write scans data
         writer.writerow(['SCAN HISTORY'])
         writer.writerow(['ID', 'Name', 'Type', 'Files', 'Threats', 'Severity', 'Date'])
         for scan in SCANS_DATA:
@@ -225,7 +254,6 @@ def generate_report():
                 threat['date_detected']
             ])
         
-        # Prepare response
         output.seek(0)
         return send_file(
             io.BytesIO(output.getvalue().encode('utf-8')),
@@ -257,7 +285,7 @@ def generate_report():
             download_name=filename
         )
     
-    else:  # PDF or other formats (returning text for demo)
+    else:
         filename += '.txt'
         return send_file(
             io.BytesIO(content.encode('utf-8')),
@@ -268,8 +296,6 @@ def generate_report():
 
 def generate_daily_report():
     """Generate daily report content"""
-    today = datetime.now().strftime('%Y-%m-%d')
-    
     report = f"""
     DLP SECURITY SYSTEM - DAILY REPORT
     ===================================
@@ -326,16 +352,115 @@ def generate_daily_report():
     return report
 
 def generate_weekly_report():
-    """Generate weekly report content"""
     return generate_daily_report() + "\n\nWEEKLY TREND ANALYSIS INCLUDED"
 
 def generate_security_report():
-    """Generate security audit report"""
     return generate_daily_report() + "\n\nSECURITY AUDIT DETAILS INCLUDED"
 
 def generate_custom_report(report_type):
-    """Generate custom report"""
     return f"Custom report for {report_type}\n\n" + generate_daily_report()
+
+# ============ MFA API ENDPOINTS ============
+
+@app.route('/api/mfa/setup', methods=['POST'])
+def api_mfa_setup():
+    """Generate TOTP Secret, Provisioning URI, and QR code image for user setup"""
+    data = request.json or {}
+    user_id = data.get('user_id')
+
+    user = next((u for u in USERS_DATA if u['id'] == user_id), None)
+    if not user:
+        return jsonify({"success": False, "error": "User not found"}), 404
+
+    # Generate new TOTP secret if not already set or requested reset
+    secret = pyotp.random_base32()
+    issuer_name = "CyberShield DLP"
+    totp = pyotp.TOTP(secret)
+    provisioning_uri = totp.provisioning_uri(name=user['email'], issuer_name=issuer_name)
+    qr_code_base64 = generate_qr_code_base64(provisioning_uri)
+
+    return jsonify({
+        "success": True,
+        "user_id": user_id,
+        "username": user['username'],
+        "secret": secret,
+        "provisioning_uri": provisioning_uri,
+        "qr_code_base64": qr_code_base64,
+        "issuer": issuer_name
+    })
+
+@app.route('/api/mfa/verify', methods=['POST'])
+def api_mfa_verify():
+    """Verify MFA code provided by user and activate MFA if correct"""
+    data = request.json or {}
+    user_id = data.get('user_id')
+    secret = data.get('secret')
+    code = data.get('code')
+
+    if not user_id or not code:
+        return jsonify({"success": False, "error": "Missing user_id or verification code"}), 400
+
+    user = next((u for u in USERS_DATA if u['id'] == user_id), None)
+    if not user:
+        return jsonify({"success": False, "error": "User not found"}), 404
+
+    target_secret = secret if secret else user.get('mfa_secret')
+    if not target_secret:
+        return jsonify({"success": False, "error": "MFA secret not established for user"}), 400
+
+    totp = pyotp.TOTP(target_secret)
+
+    # Check if code matches current or adjacent time windows
+    if totp.verify(code, valid_window=1):
+        backup_codes = generate_backup_codes() if not user.get('mfa_enabled') or secret else user.get('backup_codes', generate_backup_codes())
+
+        # Update user status
+        user['mfa_enabled'] = True
+        user['mfa_secret'] = target_secret
+        user['backup_codes'] = backup_codes
+        save_users(USERS_DATA)
+
+        return jsonify({
+            "success": True,
+            "message": "MFA code verified successfully. MFA is now enabled.",
+            "mfa_enabled": True,
+            "backup_codes": backup_codes
+        })
+
+    # Check if backup code was used
+    if user.get('mfa_enabled') and code in user.get('backup_codes', []):
+        user['backup_codes'].remove(code)
+        save_users(USERS_DATA)
+        return jsonify({
+            "success": True,
+            "message": "Backup code verified successfully.",
+            "mfa_enabled": True,
+            "backup_code_used": True,
+            "remaining_backup_codes": len(user['backup_codes'])
+        })
+
+    return jsonify({"success": False, "error": "Invalid verification code"}), 400
+
+@app.route('/api/mfa/disable', methods=['POST'])
+def api_mfa_disable():
+    """Disable MFA for user"""
+    data = request.json or {}
+    user_id = data.get('user_id')
+
+    user = next((u for u in USERS_DATA if u['id'] == user_id), None)
+    if not user:
+        return jsonify({"success": False, "error": "User not found"}), 404
+
+    user['mfa_enabled'] = False
+    user['mfa_secret'] = None
+    user['backup_codes'] = []
+    save_users(USERS_DATA)
+
+    return jsonify({
+        "success": True,
+        "message": "MFA has been disabled for this user.",
+        "mfa_enabled": False
+    })
 
 # ============ API ENDPOINTS ============
 
@@ -350,12 +475,14 @@ def api_health():
             "scanner": "running",
             "monitor": "running",
             "database": "connected",
-            "reporting": "active"
+            "reporting": "active",
+            "mfa_authenticator": "active"
         },
         "statistics": {
             "total_scans": len(SCANS_DATA),
             "total_threats": len(THREATS_DATA),
             "active_users": len([u for u in USERS_DATA if u['status'] == 'active']),
+            "mfa_enabled_users": len([u for u in USERS_DATA if u.get('mfa_enabled')]),
             "active_policies": len([p for p in POLICIES_DATA if p['status'] == 'active'])
         }
     })
@@ -363,11 +490,10 @@ def api_health():
 @app.route('/api/scan', methods=['POST'])
 def api_scan():
     """Start a scan"""
-    data = request.json
+    data = request.json or {}
     scan_type = data.get('type', 'quick')
     scan_path = data.get('path', '/')
     
-    # Create new scan record
     scan_id = len(SCANS_DATA) + 1
     new_scan = {
         "id": scan_id,
@@ -404,7 +530,6 @@ def api_scan():
 def api_scan_results(scan_id):
     """Get scan results by ID"""
     scan = next((s for s in SCANS_DATA if s['id'] == scan_id), None)
-    
     if not scan:
         return jsonify({"error": "Scan not found"}), 404
     
@@ -447,12 +572,9 @@ def api_alerts():
     status = request.args.get('status', '')
     limit = request.args.get('limit', 20, type=int)
     
-    # Filter threats as alerts
     filtered_threats = THREATS_DATA.copy()
-    
     if severity:
         filtered_threats = [t for t in filtered_threats if t['severity'] == severity]
-    
     if status:
         filtered_threats = [t for t in filtered_threats if t['status'] == status]
     
@@ -505,9 +627,10 @@ def server_error(error):
 
 if __name__ == '__main__':
     print("=" * 60)
-    print("🚀 DLP SECURITY SYSTEM WITH DATA INTEGRATION")
+    print("🚀 DLP SECURITY SYSTEM WITH DATA INTEGRATION & MFA")
     print("=" * 60)
     print("✅ Real data integration from JSON files")
+    print("✅ MFA QR Code Scanning & TOTP Verification")
     print("✅ Report generation and download")
     print("✅ Enhanced API endpoints")
     print("✅ Threat management system")
