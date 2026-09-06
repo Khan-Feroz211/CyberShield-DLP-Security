@@ -49,13 +49,13 @@
       "view_reports"
     ],
     "mfa_enabled": true,
-    "mfa_secret": "PN32H2IQHM5N64E6MTQZLYCVLDFL4W72",
+    "mfa_secret": "TF4CQIUMOW2DX5LDMXH3FFOOCQIXEIIH",
     "backup_codes": [
-      "8359-4489",
-      "3381-1770",
-      "1225-7258",
-      "3943-4357",
-      "4722-2939"
+      "5536-4082",
+      "7784-1478",
+      "1745-9939",
+      "3889-8277",
+      "1389-9331"
     ]
   },
   {
@@ -73,15 +73,9 @@
       "alerts",
       "investigate"
     ],
-    "mfa_enabled": true,
-    "mfa_secret": "KVKFKRCPNZQUY2LU",
-    "backup_codes": [
-      "2233-4455",
-      "6677-8899",
-      "3344-5566",
-      "7788-9900",
-      "1133-5577"
-    ]
+    "mfa_enabled": false,
+    "mfa_secret": null,
+    "backup_codes": []
   },
   {
     "id": 5,
