@@ -365,10 +365,18 @@ def generate_custom_report(report_type):
 @app.route('/api/mfa/setup', methods=['POST'])
 def api_mfa_setup():
     """Generate TOTP Secret, Provisioning URI, and QR code image for user setup"""
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     user_id = data.get('user_id')
 
-    user = next((u for u in USERS_DATA if u['id'] == user_id), None)
+    if user_id is None:
+        return jsonify({"success": False, "error": "Missing user_id parameter"}), 400
+
+    try:
+        user_id_int = int(user_id)
+    except (ValueError, TypeError):
+        return jsonify({"success": False, "error": "Invalid user_id parameter"}), 400
+
+    user = next((u for u in USERS_DATA if u['id'] == user_id_int), None)
     if not user:
         return jsonify({"success": False, "error": "User not found"}), 404
 
@@ -381,7 +389,7 @@ def api_mfa_setup():
 
     return jsonify({
         "success": True,
-        "user_id": user_id,
+        "user_id": user_id_int,
         "username": user['username'],
         "secret": secret,
         "provisioning_uri": provisioning_uri,
@@ -392,15 +400,25 @@ def api_mfa_setup():
 @app.route('/api/mfa/verify', methods=['POST'])
 def api_mfa_verify():
     """Verify MFA code provided by user and activate MFA if correct"""
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     user_id = data.get('user_id')
     secret = data.get('secret')
     code = data.get('code')
 
-    if not user_id or not code:
+    if user_id is None or not code:
         return jsonify({"success": False, "error": "Missing user_id or verification code"}), 400
 
-    user = next((u for u in USERS_DATA if u['id'] == user_id), None)
+    try:
+        user_id_int = int(user_id)
+    except (ValueError, TypeError):
+        return jsonify({"success": False, "error": "Invalid user_id parameter"}), 400
+
+    # Ensure code is string and 6 digits or valid backup code format
+    code_str = str(code).strip()
+    if not (code_str.isdigit() and len(code_str) == 6) and not ('-' in code_str and len(code_str) == 9):
+        return jsonify({"success": False, "error": "Invalid code format. Must be 6 digits or backup code."}), 400
+
+    user = next((u for u in USERS_DATA if u['id'] == user_id_int), None)
     if not user:
         return jsonify({"success": False, "error": "User not found"}), 404
 
@@ -411,7 +429,7 @@ def api_mfa_verify():
     totp = pyotp.TOTP(target_secret)
 
     # Check if code matches current or adjacent time windows
-    if totp.verify(code, valid_window=1):
+    if totp.verify(code_str, valid_window=1):
         backup_codes = generate_backup_codes() if not user.get('mfa_enabled') or secret else user.get('backup_codes', generate_backup_codes())
 
         # Update user status

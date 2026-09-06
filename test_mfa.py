@@ -84,5 +84,29 @@ class TestMFASystem(unittest.TestCase):
         self.assertIn('mfa_enabled_users', data['statistics'])
         self.assertIn('mfa_authenticator', data['services'])
 
+    def test_mfa_verify_missing_user_id(self):
+        """Test MFA verification fails when user_id is missing."""
+        response = self.client.post('/api/mfa/verify', json={'code': '123456'})
+        self.assertEqual(response.status_code, 400)
+        data = response.get_json()
+        self.assertFalse(data['success'])
+        self.assertEqual(data['error'], 'Missing user_id or verification code')
+
+    def test_mfa_verify_invalid_code_format(self):
+        """Test MFA verification fails when code format is invalid."""
+        response = self.client.post('/api/mfa/verify', json={'user_id': 1, 'code': 'abc'})
+        self.assertEqual(response.status_code, 400)
+        data = response.get_json()
+        self.assertFalse(data['success'])
+        self.assertIn('Invalid code format', data['error'])
+
+    def test_mfa_setup_nonexistent_user(self):
+        """Test MFA setup returns 404 for a non-existent user."""
+        response = self.client.post('/api/mfa/setup', json={'user_id': 9999})
+        self.assertEqual(response.status_code, 404)
+        data = response.get_json()
+        self.assertFalse(data['success'])
+        self.assertEqual(data['error'], 'User not found')
+
 if __name__ == '__main__':
     unittest.main()
