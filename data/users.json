@@ -8,7 +8,16 @@
     "role": "Administrator",
     "last_login": "2025-12-19 14:30:00",
     "status": "active",
-    "permissions": ["full_access", "scan", "monitor", "reports", "policies"]
+    "permissions": [
+      "full_access",
+      "scan",
+      "monitor",
+      "reports",
+      "policies"
+    ],
+    "mfa_enabled": false,
+    "mfa_secret": null,
+    "backup_codes": []
   },
   {
     "id": 2,
@@ -19,7 +28,13 @@
     "role": "Manager",
     "last_login": "2025-12-19 09:15:00",
     "status": "active",
-    "permissions": ["view_reports", "upload_files"]
+    "permissions": [
+      "view_reports",
+      "upload_files"
+    ],
+    "mfa_enabled": false,
+    "mfa_secret": null,
+    "backup_codes": []
   },
   {
     "id": 3,
@@ -30,7 +45,12 @@
     "role": "Analyst",
     "last_login": "2025-12-19 11:45:00",
     "status": "active",
-    "permissions": ["view_reports"]
+    "permissions": [
+      "view_reports"
+    ],
+    "mfa_enabled": false,
+    "mfa_secret": null,
+    "backup_codes": []
   },
   {
     "id": 4,
@@ -41,7 +61,15 @@
     "role": "Security Analyst",
     "last_login": "2025-12-19 16:30:00",
     "status": "active",
-    "permissions": ["scan", "monitor", "alerts", "investigate"]
+    "permissions": [
+      "scan",
+      "monitor",
+      "alerts",
+      "investigate"
+    ],
+    "mfa_enabled": false,
+    "mfa_secret": null,
+    "backup_codes": []
   },
   {
     "id": 5,
@@ -52,6 +80,13 @@
     "role": "Manager",
     "last_login": "2025-12-19 13:20:00",
     "status": "active",
-    "permissions": ["view_reports", "upload_files", "manage_users"]
+    "permissions": [
+      "view_reports",
+      "upload_files",
+      "manage_users"
+    ],
+    "mfa_enabled": false,
+    "mfa_secret": null,
+    "backup_codes": []
   }
 ]

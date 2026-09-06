@@ -10,7 +10,7 @@
         <div class="card stat-card">
             <div class="card-body">
                 <div class="number">{{ total_scans }}</div>
-                <p class="text-muted">Total Scans</p>
+                <p class="text-muted mb-0">Total Scans</p>
             </div>
         </div>
     </div>
@@ -19,7 +19,7 @@
         <div class="card stat-card">
             <div class="card-body">
                 <div class="number">{{ total_threats }}</div>
-                <p class="text-muted">Total Threats</p>
+                <p class="text-muted mb-0">Total Threats</p>
             </div>
         </div>
     </div>
@@ -28,7 +28,7 @@
         <div class="card stat-card">
             <div class="card-body">
                 <div class="number">{{ total_users }}</div>
-                <p class="text-muted">Active Users</p>
+                <p class="text-muted mb-0">Active Users</p>
             </div>
         </div>
     </div>
@@ -37,7 +37,7 @@
         <div class="card stat-card">
             <div class="card-body">
                 <div class="number">{{ active_policies }}</div>
-                <p class="text-muted">Active Policies</p>
+                <p class="text-muted mb-0">Active Policies</p>
             </div>
         </div>
     </div>
@@ -54,27 +54,27 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-3 mb-3">
-                        <a href="/scanner" class="btn btn-primary w-100">
-                            <i class="bi bi-search"></i><br>
+                        <a href="/scanner" class="btn btn-primary w-100 py-2">
+                            <i class="bi bi-search fs-5"></i><br>
                             Quick Scan
                         </a>
                     </div>
                     <div class="col-md-3 mb-3">
-                        <button class="btn btn-outline-primary w-100" id="quickReport">
-                            <i class="bi bi-file-text"></i><br>
+                        <button class="btn btn-outline-primary w-100 py-2" id="quickReport">
+                            <i class="bi bi-file-text fs-5"></i><br>
                             Generate Report
                         </button>
                     </div>
                     <div class="col-md-3 mb-3">
-                        <a href="/alerts" class="btn btn-outline-primary w-100">
-                            <i class="bi bi-bell"></i><br>
+                        <a href="/alerts" class="btn btn-outline-primary w-100 py-2">
+                            <i class="bi bi-bell fs-5"></i><br>
                             View Alerts
                         </a>
                     </div>
                     <div class="col-md-3 mb-3">
-                        <a href="/threats" class="btn btn-outline-danger w-100">
-                            <i class="bi bi-shield-exclamation"></i><br>
-                            View Threats
+                        <a href="/users" class="btn btn-outline-success w-100 py-2">
+                            <i class="bi bi-qr-code-scan fs-5"></i><br>
+                            Manage MFA
                         </a>
                     </div>
                 </div>
@@ -89,7 +89,7 @@
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-hover">
+                    <table class="table table-hover align-middle">
                         <thead>
                             <tr>
                                 <th>Scan Name</th>
@@ -145,7 +145,7 @@
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-hover">
+                    <table class="table table-hover align-middle">
                         <thead>
                             <tr>
                                 <th>Threat ID</th>
@@ -203,12 +203,22 @@
     
     <!-- Right Column -->
     <div class="col-lg-4">
-        <!-- System Status -->
+        <!-- System Status & Authentication Security -->
         <div class="card">
             <div class="card-header">
-                <i class="bi bi-heart-pulse"></i> System Status
+                <i class="bi bi-heart-pulse"></i> System & MFA Security Status
             </div>
             <div class="card-body">
+                <div class="mb-3">
+                    <strong>MFA Protection Engine</strong>
+                    <div class="float-end">
+                        <span class="badge bg-success"><i class="bi bi-shield-lock"></i> TOTP Active</span>
+                    </div>
+                </div>
+                <div class="progress mb-3" style="height: 10px;">
+                    <div class="progress-bar bg-success" style="width: 100%"></div>
+                </div>
+
                 <div class="mb-3">
                     <strong>Scanner Service</strong>
                     <div class="float-end">
@@ -220,23 +230,13 @@
                 </div>
                 
                 <div class="mb-3">
-                    <strong>Data Protection</strong>
+                    <strong>Data Protection Policies</strong>
                     <div class="float-end">
                         <span class="badge bg-success">Active</span>
                     </div>
                 </div>
                 <div class="progress mb-3" style="height: 10px;">
                     <div class="progress-bar bg-success" style="width: 98%"></div>
-                </div>
-                
-                <div class="mb-3">
-                    <strong>Report Generation</strong>
-                    <div class="float-end">
-                        <span class="badge bg-success">Ready</span>
-                    </div>
-                </div>
-                <div class="progress mb-3" style="height: 10px;">
-                    <div class="progress-bar bg-success" style="width: 100%"></div>
                 </div>
             </div>
         </div>
@@ -277,11 +277,11 @@
             </div>
             <div class="card-body">
                 <div class="list-group list-group-flush">
+                    <a href="/users" class="list-group-item list-group-item-action">
+                        <i class="bi bi-person-badge me-2"></i> User & MFA Management
+                    </a>
                     <a href="/threats" class="list-group-item list-group-item-action">
                         <i class="bi bi-shield-exclamation me-2"></i> Threat Management
-                    </a>
-                    <a href="/users" class="list-group-item list-group-item-action">
-                        <i class="bi bi-people me-2"></i> User Management
                     </a>
                     <a href="/api-testing" class="list-group-item list-group-item-action">
                         <i class="bi bi-code-slash me-2"></i> API Testing Console
@@ -303,12 +303,10 @@
         const reportType = document.getElementById('quickReportType').value;
         const format = document.getElementById('quickReportFormat').value;
         
-        // Show loading
         const originalText = this.innerHTML;
         this.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Generating...';
         this.disabled = true;
         
-        // Call API to generate report
         fetch('/api/report/generate', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
@@ -324,7 +322,6 @@
             return response.blob();
         })
         .then(blob => {
-            // Create download link
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -334,7 +331,6 @@
             window.URL.revokeObjectURL(url);
             document.body.removeChild(a);
             
-            // Reset button
             this.innerHTML = originalText;
             this.disabled = false;
             
@@ -348,7 +344,6 @@
         });
     });
     
-    // Quick report button in actions section
     document.getElementById('quickReport').addEventListener('click', function() {
         document.getElementById('generateQuickReport').click();
     });

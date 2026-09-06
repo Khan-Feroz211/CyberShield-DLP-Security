@@ -1,33 +1,34 @@
 {% extends "base.html" %}
 
 {% block title %}User Management - DLP Security System{% endblock %}
-{% block page_title %}User Management{% endblock %}
+{% block page_title %}User Management & Authentication (MFA){% endblock %}
 
 {% block content %}
 <div class="row">
     <div class="col-12">
         <!-- User Statistics -->
         <div class="card mb-4">
-            <div class="card-header">
-                <i class="bi bi-people"></i> User Statistics
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-people"></i> User Statistics & Security Status</span>
+                <span class="badge bg-primary"><i class="bi bi-shield-check"></i> MFA Policy Enforceable</span>
             </div>
             <div class="card-body">
                 <div class="row text-center">
                     <div class="col-md-3">
                         <div class="display-6">{{ users|length }}</div>
-                        <small>Total Users</small>
+                        <small class="text-muted">Total Users</small>
                     </div>
                     <div class="col-md-3">
                         <div class="display-6 text-success">{{ users|selectattr('status', 'equalto', 'active')|list|length }}</div>
-                        <small>Active Users</small>
+                        <small class="text-muted">Active Users</small>
                     </div>
                     <div class="col-md-3">
-                        <div class="display-6 text-info">{{ users|map(attribute='department')|unique|list|length }}</div>
-                        <small>Departments</small>
+                        <div class="display-6 text-info">{{ users|selectattr('mfa_enabled')|list|length }}</div>
+                        <small class="text-muted">MFA Protected Users</small>
                     </div>
                     <div class="col-md-3">
                         <div class="display-6 text-warning">{{ users|map(attribute='role')|unique|list|length }}</div>
-                        <small>Roles</small>
+                        <small class="text-muted">Roles</small>
                     </div>
                 </div>
             </div>
@@ -35,15 +36,15 @@
         
         <!-- Users Table -->
         <div class="card">
-            <div class="card-header">
-                <i class="bi bi-person-lines-fill"></i> System Users
-                <button class="btn btn-sm btn-primary float-end" data-bs-toggle="modal" data-bs-target="#addUserModal">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div><i class="bi bi-person-lines-fill"></i> System Users</div>
+                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
                     <i class="bi bi-person-plus"></i> Add User
                 </button>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-hover">
+                    <table class="table table-hover align-middle">
                         <thead>
                             <tr>
                                 <th>Username</th>
@@ -51,6 +52,7 @@
                                 <th>Email</th>
                                 <th>Department</th>
                                 <th>Role</th>
+                                <th>MFA Status</th>
                                 <th>Last Login</th>
                                 <th>Status</th>
                                 <th>Actions</th>
@@ -74,6 +76,13 @@
                                     <span class="badge bg-secondary">{{ user.role }}</span>
                                     {% endif %}
                                 </td>
+                                <td>
+                                    {% if user.mfa_enabled %}
+                                    <span class="badge bg-success"><i class="bi bi-qr-code-scan"></i> MFA Enabled</span>
+                                    {% else %}
+                                    <span class="badge bg-warning text-dark"><i class="bi bi-shield-slash"></i> Disabled</span>
+                                    {% endif %}
+                                </td>
                                 <td>{{ user.last_login }}</td>
                                 <td>
                                     {% if user.status == 'active' %}
@@ -83,14 +92,20 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <button class="btn btn-sm btn-outline-primary edit-user" data-id="{{ user.id }}">
+                                    {% if user.mfa_enabled %}
+                                    <button class="btn btn-sm btn-outline-danger disable-mfa-btn" data-id="{{ user.id }}" data-username="{{ user.username }}" title="Disable MFA">
+                                        <i class="bi bi-shield-x"></i> MFA
+                                    </button>
+                                    {% else %}
+                                    <button class="btn btn-sm btn-outline-success setup-mfa-btn" data-id="{{ user.id }}" data-username="{{ user.username }}" title="Configure MFA QR Code">
+                                        <i class="bi bi-qr-code"></i> Setup MFA
+                                    </button>
+                                    {% endif %}
+                                    <button class="btn btn-sm btn-outline-primary edit-user" data-id="{{ user.id }}" title="Edit User">
                                         <i class="bi bi-pencil"></i>
                                     </button>
-                                    <button class="btn btn-sm btn-outline-info view-user" data-id="{{ user.id }}">
-                                        <i class="bi bi-eye"></i>
-                                    </button>
                                     {% if user.username != 'admin' %}
-                                    <button class="btn btn-sm btn-outline-danger delete-user" data-id="{{ user.id }}">
+                                    <button class="btn btn-sm btn-outline-danger delete-user" data-id="{{ user.id }}" title="Delete User">
                                         <i class="bi bi-trash"></i>
                                     </button>
                                     {% endif %}
@@ -150,25 +165,6 @@
                             <option>Auditor</option>
                         </select>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Permissions</label>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="permScan">
-                            <label class="form-check-label" for="permScan">Scan Files</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="permMonitor">
-                            <label class="form-check-label" for="permMonitor">Monitor System</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="permReports">
-                            <label class="form-check-label" for="permReports">View Reports</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="permAlerts">
-                            <label class="form-check-label" for="permAlerts">Manage Alerts</label>
-                        </div>
-                    </div>
                 </form>
             </div>
             <div class="modal-footer">
@@ -178,31 +174,203 @@
         </div>
     </div>
 </div>
+
+<!-- Setup MFA Modal with QR Code -->
+<div class="modal fade" id="mfaSetupModal" tabindex="-1" aria-labelledby="mfaSetupModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="mfaSetupModalLabel"><i class="bi bi-qr-code-scan"></i> Configure Multi-Factor Authentication (MFA)</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-3">
+                    <p class="lead mb-1">Set up TOTP 2-Factor Security for <strong id="mfaUsernameDisplay">User</strong></p>
+                    <small class="text-muted">Works with Google Authenticator, Microsoft Authenticator, Authy, or any TOTP app.</small>
+                </div>
+
+                <div class="row align-items-center">
+                    <div class="col-md-6 text-center border-end">
+                        <h6 class="fw-bold mb-3"><i class="bi bi-1-circle"></i> Scan QR Code</h6>
+                        <div id="mfaQrContainer" class="p-3 bg-light rounded d-inline-block border mb-2">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading QR Code...</span>
+                            </div>
+                        </div>
+                        <div class="mt-2 text-start small text-muted px-3">
+                            <strong>Manual Key Entry:</strong>
+                            <div class="input-group input-group-sm mt-1">
+                                <input type="text" class="form-control font-monospace" id="mfaSecretDisplay" readonly>
+                                <button class="btn btn-outline-secondary" type="button" onclick="copySecret()"><i class="bi bi-clipboard"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="fw-bold mb-3"><i class="bi bi-2-circle"></i> Verify Authenticator Code</h6>
+                        <p class="small text-muted mb-3">Enter the 6-digit code displayed in your authenticator app to confirm setup.</p>
+
+                        <div id="mfaAlertContainer"></div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">6-Digit Verification Code</label>
+                            <input type="text" class="form-control form-control-lg text-center font-monospace" id="mfaVerificationCode" placeholder="000000" maxlength="6" autocomplete="off">
+                        </div>
+
+                        <button class="btn btn-success w-100 btn-lg" id="btnVerifyMfa">
+                            <i class="bi bi-shield-check"></i> Verify & Enable MFA
+                        </button>
+
+                        <div id="mfaBackupCodesContainer" class="mt-4 d-none">
+                            <div class="alert alert-success">
+                                <h6><i class="bi bi-key-fill"></i> MFA Successfully Enabled!</h6>
+                                <p class="small mb-2">Save these backup codes securely in case you lose access to your authenticator device:</p>
+                                <ul id="backupCodesList" class="font-monospace small mb-2"></ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
+    let currentMfaUserId = null;
+    let currentMfaSecret = null;
+
+    // Attach click handlers for MFA setup
+    document.querySelectorAll('.setup-mfa-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const userId = this.getAttribute('data-id');
+            const username = this.getAttribute('data-username');
+            openMfaSetupModal(userId, username);
+        });
+    });
+
+    // Attach click handlers for disabling MFA
+    document.querySelectorAll('.disable-mfa-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const userId = this.getAttribute('data-id');
+            const username = this.getAttribute('data-username');
+            if (confirm(`Are you sure you want to disable MFA for user '${username}'?`)) {
+                disableMfa(userId);
+            }
+        });
+    });
+
+    function openMfaSetupModal(userId, username) {
+        currentMfaUserId = userId;
+        document.getElementById('mfaUsernameDisplay').textContent = username;
+        document.getElementById('mfaVerificationCode').value = '';
+        document.getElementById('mfaAlertContainer').innerHTML = '';
+        document.getElementById('mfaBackupCodesContainer').classList.add('d-none');
+        document.getElementById('btnVerifyMfa').disabled = false;
+
+        // Fetch setup data from backend
+        fetch('/api/mfa/setup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_id: parseInt(userId) })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                currentMfaSecret = data.secret;
+                document.getElementById('mfaQrContainer').innerHTML = `<img src="${data.qr_code_base64}" alt="MFA QR Code" class="img-fluid" style="max-width: 200px;">`;
+                document.getElementById('mfaSecretDisplay').value = data.secret;
+                const modal = new bootstrap.Modal(document.getElementById('mfaSetupModal'));
+                modal.show();
+            } else {
+                alert('Failed to initiate MFA setup: ' + data.error);
+            }
+        })
+        .catch(err => alert('Error connecting to server: ' + err));
+    }
+
+    // Verify MFA code
+    document.getElementById('btnVerifyMfa').addEventListener('click', function() {
+        const code = document.getElementById('mfaVerificationCode').value.trim();
+        const alertBox = document.getElementById('mfaAlertContainer');
+
+        if (!code || code.length < 6) {
+            alertBox.innerHTML = '<div class="alert alert-warning py-2 small"><i class="bi bi-exclamation-circle"></i> Please enter a valid 6-digit code.</div>';
+            return;
+        }
+
+        fetch('/api/mfa/verify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                user_id: parseInt(currentMfaUserId),
+                secret: currentMfaSecret,
+                code: code
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alertBox.innerHTML = '<div class="alert alert-success py-2 small"><i class="bi bi-check-circle"></i> Verification successful!</div>';
+                document.getElementById('btnVerifyMfa').disabled = true;
+
+                if (data.backup_codes && data.backup_codes.length > 0) {
+                    const list = document.getElementById('backupCodesList');
+                    list.innerHTML = data.backup_codes.map(c => `<li>${c}</li>`).join('');
+                    document.getElementById('mfaBackupCodesContainer').classList.remove('d-none');
+                }
+
+                setTimeout(() => {
+                    location.reload();
+                }, 3000);
+            } else {
+                alertBox.innerHTML = `<div class="alert alert-danger py-2 small"><i class="bi bi-x-circle"></i> ${data.error || 'Invalid code. Try again.'}</div>`;
+            }
+        })
+        .catch(err => {
+            alertBox.innerHTML = `<div class="alert alert-danger py-2 small">Error: ${err}</div>`;
+        });
+    });
+
+    function disableMfa(userId) {
+        fetch('/api/mfa/disable', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_id: parseInt(userId) })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alert('MFA has been disabled successfully.');
+                location.reload();
+            } else {
+                alert('Failed to disable MFA: ' + data.error);
+            }
+        });
+    }
+
+    function copySecret() {
+        const input = document.getElementById('mfaSecretDisplay');
+        input.select();
+        document.execCommand('copy');
+        alert('MFA Key copied to clipboard!');
+    }
+
     function addUser() {
         alert('User added successfully!');
         document.getElementById('addUserForm').reset();
         bootstrap.Modal.getInstance(document.getElementById('addUserModal')).hide();
     }
     
-    // Edit user
     document.querySelectorAll('.edit-user').forEach(btn => {
         btn.addEventListener('click', function() {
             alert('Edit user feature - to be implemented');
         });
     });
     
-    // View user details
-    document.querySelectorAll('.view-user').forEach(btn => {
-        btn.addEventListener('click', function() {
-            alert('View user details - to be implemented');
-        });
-    });
-    
-    // Delete user
     document.querySelectorAll('.delete-user').forEach(btn => {
         btn.addEventListener('click', function() {
             if (confirm('Are you sure you want to delete this user?')) {
